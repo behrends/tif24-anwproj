@@ -6,7 +6,13 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Home, Settings, TestTube, Menu } from 'lucide-react';
+import {
+  Home,
+  Settings,
+  TestTube,
+  Menu,
+  BookOpen,
+} from 'lucide-react';
 
 const Navbar = () => {
   return (
@@ -30,6 +36,15 @@ const Navbar = () => {
             <Link href="/test" className="flex items-center gap-1">
               <TestTube className="h-4 w-4" />
               Test
+            </Link>
+          </Button>
+          <Button variant="ghost" size="sm" asChild>
+            <Link
+              href="/studiengaenge"
+              className="flex items-center gap-1"
+            >
+              <BookOpen className="h-4 w-4" />
+              Studiengänge
             </Link>
           </Button>
           <Button variant="ghost" size="sm" asChild>
@@ -68,6 +83,15 @@ const Navbar = () => {
                 >
                   <TestTube className="h-4 w-4" />
                   Test
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link
+                  href="/studiengaenge"
+                  className="flex items-center gap-2 w-full"
+                >
+                  <BookOpen className="h-4 w-4" />
+                  Studiengänge
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
