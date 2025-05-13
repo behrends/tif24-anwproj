@@ -1,26 +1,86 @@
 import Link from 'next/link';
+import { Button } from '@/components/ui/button';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { Home, Settings, TestTube, Menu } from 'lucide-react';
 
 const Navbar = () => {
   return (
-    <nav className="bg-gray-800 p-4">
-      <div className="container mx-auto flex justify-between items-center">
-        <div className="text-white text-lg font-bold">MyApp</div>
-        <div className="space-x-4">
-          <Link href="/" className="text-gray-300 hover:text-white">
-            Home
+    <nav className="border-b bg-background py-2">
+      <div className="container mx-auto flex justify-between items-center px-4">
+        <div className="flex items-center">
+          <Link href="/" className="font-semibold text-lg">
+            MyApp
           </Link>
-          <Link
-            href="/test"
-            className="text-gray-300 hover:text-white"
-          >
-            Test
-          </Link>
-          <Link
-            href="/settings"
-            className="text-gray-300 hover:text-white"
-          >
-            Einstellungen
-          </Link>
+        </div>
+
+        {/* Desktop Navigation */}
+        <div className="hidden md:flex space-x-1">
+          <Button variant="ghost" size="sm" asChild>
+            <Link href="/" className="flex items-center gap-1">
+              <Home className="h-4 w-4" />
+              Home
+            </Link>
+          </Button>
+          <Button variant="ghost" size="sm" asChild>
+            <Link href="/test" className="flex items-center gap-1">
+              <TestTube className="h-4 w-4" />
+              Test
+            </Link>
+          </Button>
+          <Button variant="ghost" size="sm" asChild>
+            <Link
+              href="/settings"
+              className="flex items-center gap-1"
+            >
+              <Settings className="h-4 w-4" />
+              Einstellungen
+            </Link>
+          </Button>
+        </div>
+
+        {/* Mobile Navigation */}
+        <div className="md:hidden">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="sm">
+                <Menu className="h-5 w-5" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem asChild>
+                <Link
+                  href="/"
+                  className="flex items-center gap-2 w-full"
+                >
+                  <Home className="h-4 w-4" />
+                  Home
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link
+                  href="/test"
+                  className="flex items-center gap-2 w-full"
+                >
+                  <TestTube className="h-4 w-4" />
+                  Test
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link
+                  href="/settings"
+                  className="flex items-center gap-2 w-full"
+                >
+                  <Settings className="h-4 w-4" />
+                  Einstellungen
+                </Link>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </div>
     </nav>
