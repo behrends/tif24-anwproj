@@ -87,10 +87,14 @@ Die vorgeschlagene Webanwendung soll diese Probleme lösen, indem sie eine struk
 
 ## 6. Aufbau der App (Screens, wichtige Komponenten)
 
-Für den MVP konzentrieren wir uns auf folgende Screens und Kernkomponenten. Alle Aktionen werden von einer einzigen Nutzerrolle ("Planer") ausgeführt.
+**6.0. Authentifizierung und Autorisierung**
+*   **Authentifizierung:** Die Anmeldung an der Anwendung erfolgt über das bestehende Single Sign-On (SSO) System der DHBW Lörrach via **Shibboleth**. Es werden keine separaten Logins oder Passwörter in der App selbst verwaltet.
+*   **Autorisierung:** Für den MVP gibt es nur die Rolle "Planer". Alle via SSO authentifizierten Nutzer, die für die Nutzung der App vorgesehen sind (z.B. Studiengangsmanagerinnen, die einer bestimmten Gruppe im Identity Provider der DHBW via Shibboleth angehören könnten), erhalten diese Rolle und die damit verbundenen Berechtigungen (Anlegen, Bearbeiten, Zuweisen, Einsehen aller Daten im Rahmen der App-Funktionalität). Eine fein-granulare Rechteverwaltung (z.B. Zugriff nur auf bestimmte Studiengänge basierend auf der Nutzeridentität) ist für den MVP nicht vorgesehen; die arbeitsteilige Planung wird durch Filter in der UI unterstützt.
+
+Für den MVP konzentrieren wir uns auf folgende Screens und Kernkomponenten. Alle Aktionen werden von einer einzigen Nutzerrolle ("Planer") ausgeführt, die wie oben beschrieben authentifiziert und autorisiert wurde.
 
 ### 6.1. Dashboard / Startseite
-*   **Zweck:** Einstiegspunkt nach dem Login.
+*   **Zweck:** Einstiegspunkt nach dem Login (erfolgt via SSO-Redirect).
 *   **Komponenten:**
     *   Auflistung der aktuellen und zukünftigen Quartale (Name, Zeitraum), klickbar zur Planungsansicht.
     *   Link/Bereich zur Ansicht vergangener (archivierter) Quartale.
