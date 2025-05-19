@@ -26,9 +26,9 @@ Die vorgeschlagene Webanwendung soll diese Probleme lösen, indem sie eine struk
 *   **Studiengang:** Ein spezifischer Studiengang an der DHBW Lörrach (z.B. Wirtschaftsinformatik, Maschinenbau).
 *   **Kurs (Kohorte/Studentengruppe):** Eine feste Gruppe von Studierenden innerhalb eines Studiengangs, die gemeinsam Vorlesungen über mehrere Semester besuchen (z.B. TIF24A, WWI24B). Ein Kurs hat einen Bezeichner und ist einem Studiengang zugeordnet.
 *   **Quartal:** Ein definierter Planungszeitraum (z.B. Q3 2025) mit Start- und Enddatum, für den Vorlesungen Dozierenden zugewiesen werden.
-*   **Akademisches Jahr:** Läuft vom 01.10. bis zum 30.09. des Folgejahres. Relevant für die Berechnung der 240-Stunden-Grenze externer Dozierender.
+*   **Akademisches Jahr:** Definiert als Zeitraum vom 01.10. eines Jahres bis zum 30.09. des Folgejahres. Relevant für die Berechnung der 240-Stunden-Grenze externer Dozierender. Es wird dynamisch aus dem Datum eines Quartals abgeleitet, keine eigene Datenverwaltung dafür.
 *   **Geplante Vorlesung (Vorlesungsinstanz / ScheduledCourse):** Eine spezifische Durchführung einer Katalog-Vorlesung für einen bestimmten Kurs in einem bestimmten Quartal. Diese wird vom Planer "aktiviert" oder ausgewählt.
-*   **Zuordnung (Assignment):** Die Verbindung einer *geplanten Vorlesung* (also Vorlesung + Kurs + Quartal) mit einem oder mehreren Dozierenden, inklusive der Angabe der jeweiligen Stundenanteile.
+*   **Zuordnung (Assignment):** Die Verbindung einer *geplanten Vorlesung* mit einem oder mehreren Dozierenden, inklusive der Angabe der jeweiligen Stundenanteile.
 *   **Stundenkontingent (extern):** Externe Dozierende dürfen maximal 240 Stunden pro akademischem Jahr unterrichten.
 *   **Stammkatalog (Vorlesungen):** Eine zentrale Liste aller prinzipiell verfügbaren Vorlesungen.
 
@@ -64,15 +64,9 @@ Die vorgeschlagene Webanwendung soll diese Probleme lösen, indem sie eine struk
     *   `name` (Text, Pflichtfeld, unique, z.B. "Q3 2025")
     *   `start_date` (Datum, Pflichtfeld)
     *   `end_date` (Datum, Pflichtfeld)
-    *   `academic_year_id` (FK zu AcademicYears, Pflichtfeld)
+    *   *Hinweis: Das zugehörige akademische Jahr wird aus `start_date` dynamisch berechnet.*
 
-### 5.6. Akademische Jahre (AcademicYears)
-    *   `academic_year_id` (PK, Autoincrement)
-    *   `name` (Text, Pflichtfeld, unique, z.B. "AY 2024/2025")
-    *   `start_date` (Datum, Pflichtfeld, 01.10.JJJJ)
-    *   `end_date` (Datum, Pflichtfeld, 30.09.JJJJ+1)
-
-### 5.7. Geplante Vorlesungen (ScheduledCourses)
+### 5.6. Geplante Vorlesungen (ScheduledCourses)
     *   `scheduled_course_id` (PK, Autoincrement)
     *   `quarter_id` (FK zu Quarters, Pflichtfeld)
     *   `cohort_id` (FK zu Cohorts, Pflichtfeld)
@@ -81,7 +75,7 @@ Die vorgeschlagene Webanwendung soll diese Probleme lösen, indem sie eine struk
     *   `custom_hours` (Integer, optional, falls Stunden abweichen, Default: `standard_hours` aus `Courses`)
     *   *Constraint: Unique combination of `quarter_id`, `cohort_id`, `course_catalog_id`*
 
-### 5.8. Planungszuordnungen (Assignments)
+### 5.7. Planungszuordnungen (Assignments)
     *   `assignment_id` (PK, Autoincrement)
     *   `scheduled_course_id` (FK zu ScheduledCourses, Pflichtfeld)
     *   `lecturer_id` (FK zu Lecturers, Pflichtfeld)
@@ -102,7 +96,7 @@ Für den MVP konzentrieren wir uns auf folgende Screens und Kernkomponenten. All
         *   Vorlesungen (Katalog)
         *   Studiengänge
         *   Kurse
-        *   Quartale (& Akademische Jahre)
+        *   Quartale
 
 ### 6.2. Stammdatenverwaltung
 
@@ -138,20 +132,12 @@ Für den MVP konzentrieren wir uns auf folgende Screens und Kernkomponenten. All
     *   Editieren eines bestehenden Kurses.
     *   (Optional für MVP: Löschen, nur wenn keine `ScheduledCourses` darauf verweisen).
 
-#### 6.2.5. Quartale & Akademische Jahre verwalten
-*   **Quartale:**
-    *   **Zweck:** Anlegen, Anzeigen, Bearbeiten von Planungsquartalen.
-    *   **Ansicht:** Liste der Quartale mit Name, Start-/Enddatum, zugehöriges Akademisches Jahr.
-    *   **Funktionen:**
-        *   Button "Neues Quartal anlegen" -> Formular (Name, Startdatum, Enddatum, Auswahl des Akademischen Jahres (Dropdown)).
+#### 6.2.5. Quartale verwalten
+*   **Zweck:** Anlegen, Anzeigen, Bearbeiten von Planungsquartalen.
+*   **Ansicht:** Liste der Quartale mit Name, Start-/Enddatum.
+*   **Funktionen:**
+        *   Button "Neues Quartal anlegen" -> Formular (Name, Startdatum, Enddatum). Das System leitet das relevante akademische Jahr intern für Berechnungen ab.
         *   Editieren eines bestehenden Quartals.
-*   **Akademische Jahre:**
-    *   **Zweck:** Anlegen, Anzeigen, Bearbeiten von Akademischen Jahren (benötigt für 240h-Regel und Quartalszuordnung).
-    *   **Ansicht:** Liste der Akademischen Jahre mit Name, Start-/Enddatum.
-    *   **Funktionen:**
-        *   Button "Neues Akademisches Jahr anlegen" -> Formular (Name, Startdatum (Default 01.10.), Enddatum (Default 30.09.)).
-        *   Editieren.
-    *   *Hinweis: Dies kann eine sehr einfache Verwaltung sein.*
 
 ### 6.3. Quartalsplanung (Kernansicht)
 *   **Zweck:** Definieren, welche Vorlesungen für welche Kurse in diesem Quartal stattfinden, und Zuweisen von Dozierenden zu diesen geplanten Vorlesungen.
@@ -182,10 +168,10 @@ Für den MVP konzentrieren wir uns auf folgende Screens und Kernkomponenten. All
     *   **Dozierenden-Auswahl-Bereich:**
         *   Durchsuchbare/Filterbare Liste aller Dozierenden (Filter nach Name, Status intern/extern).
         *   Anzeige pro Dozierendem in der Auswahl-Liste: Name, Status (intern/extern), Bemerkungen.
-        *   **Für externe Dozierende:** Dynamische Anzeige der bereits im aktuellen *akademischen Jahr* (des Planungsquartals) verplanten Stunden (Summe aller `assigned_hours` für diesen Dozenten in diesem akademischen Jahr).
+        *   **Für externe Dozierende:** Dynamische Anzeige der bereits im aktuellen *akademischen Jahr* (abgeleitet aus dem Startdatum des Planungsquartals) verplanten Stunden. Diese Berechnung summiert alle `assigned_hours` für diesen Dozenten, deren zugehörige `ScheduledCourses` in Quartalen liegen, die in das relevante akademische Jahr fallen.
     *   **Stundeneingabe:** Nach Auswahl eines Dozierenden: Eingabefeld für die Anzahl der Stunden (`assigned_hours`), die dieser Dozierende für *diese spezifische `ScheduledCourse`* übernehmen soll.
     *   **Validierung/Warnung beim Speichern einer Zuweisung:**
-        *   Wenn einem externen Dozierenden Stunden zugewiesen werden, die seine Gesamtstundenzahl im akademischen Jahr über 240 Stunden heben würden, wird eine deutliche, nicht-blockierende Warnung angezeigt. Die Speicherung ist trotzdem möglich.
+        *   Wenn einem externen Dozierenden Stunden zugewiesen werden, die seine Gesamtstundenzahl im (dynamisch berechneten) akademischen Jahr über 240 Stunden heben würden, wird eine deutliche, nicht-blockierende Warnung angezeigt. Die Speicherung ist trotzdem möglich.
         *   Die Summe der `assigned_hours` für eine `ScheduledCourse` sollte die `custom_hours` (oder `standard_hours`) der `ScheduledCourse` nicht überschreiten (Warnung, wenn doch).
     *   Speichern der Zuordnung (`Assignment`) oder der Änderungen.
 
