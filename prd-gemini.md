@@ -34,6 +34,8 @@ Die vorgeschlagene Webanwendung soll diese Probleme lösen, indem sie eine struk
 
 ## 5. Datenstruktur
 
+**Vorbemerkung zu Audit-Feldern:** Sofern nicht anders angegeben, wird für alle im Folgenden definierten Tabellen empfohlen, Standard-Audit-Felder wie `created_at` (Zeitstempel der Erstellung) und `updated_at` (Zeitstempel der letzten Änderung) auf Datenbankebene zu implementieren. Diese dienen der Nachvollziehbarkeit und dem Debugging, sind aber für den Nutzer im MVP nicht direkt sichtbar. Felder wie `created_by` oder `updated_by` sind für den MVP nicht vorgesehen.
+
 ### 5.1. Dozierende (Lecturers)
     *   `lecturer_id` (PK, Autoincrement)
     *   `title` (Text, optional, z.B. "Dr.", "Prof. Dr.")
