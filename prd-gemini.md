@@ -17,7 +17,7 @@ Die vorgeschlagene Webanwendung soll diese Probleme lösen, indem sie eine struk
 
 ## 3. Zielgruppe
 
-*   **Primäre Nutzer:** Mitarbeiter der DHBW Lörrach, die für die operative Planung der Vorlesungszuständigkeiten (Zuordnung von Dozierenden zu Vorlesungen) verantwortlich sind.
+*   **Primäre Nutzer:** Mitarbeiter der DHBW Lörrach, die für die operative Planung der Vorlesungszuständigkeiten verantwortlich sind. Dies umfasst insbesondere Rollen wie die "Studiengangsmanagerin", die in einigen Studiengängen explizit diese Aufgabe wahrnimmt.
 
 ## 4. Konzepte und Begriffe
 
