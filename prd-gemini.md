@@ -2,7 +2,7 @@
 
 ## 1. Produktvision
 
-Eine intuitive Webanwendung, die es den Mitarbeitern der DHBW Lörrach ermöglicht, die Zuweisung von Dozierenden zu Vorlesungen für kommende Quartale effizient, transparent und fehlerreduziert zu planen und die bisherige, unübersichtliche Excel-basierte Planung abzulösen.
+Eine intuitive Webanwendung, die es den Mitarbeitern der DHBW Lörrach ermöglicht, die Zuweisung von Dozierenden zu Vorlesungen für spezifische Kurse in kommenden Quartalen effizient, transparent und fehlerreduziert zu planen und die bisherige, unübersichtliche Excel-basierte Planung abzulösen.
 
 ## 2. Problemlösung (Opportunity)
 
@@ -22,55 +22,71 @@ Die vorgeschlagene Webanwendung soll diese Probleme lösen, indem sie eine struk
 ## 4. Konzepte und Begriffe
 
 *   **Dozierende:** Personen, die Vorlesungen halten. Unterscheidung zwischen *internen Professoren* und *externen Dozierenden*.
-*   **Vorlesung:** Eine Lehreinheit mit definiertem Inhalt, Stundenumfang, zugehörigem Studiengang, Semester und Prüfungsleistung.
-*   **Studiengang:** Ein spezifischer Studiengang an der DHBW Lörrach (z.B. Wirtschaftsinformatik, Maschinenbau). Dient im MVP als Filterkriterium und zur Aufteilung der Planungsarbeit.
+*   **Vorlesung (Katalog):** Eine Lehreinheit im Stammkatalog mit definiertem Inhalt, Regelstundenumfang, zugehörigem Studiengang, typischem Semester und Prüfungsleistung.
+*   **Studiengang:** Ein spezifischer Studiengang an der DHBW Lörrach (z.B. Wirtschaftsinformatik, Maschinenbau).
+*   **Kurs (Kohorte/Studentengruppe):** Eine feste Gruppe von Studierenden innerhalb eines Studiengangs, die gemeinsam Vorlesungen über mehrere Semester besuchen (z.B. TIF24A, WWI24B). Ein Kurs hat einen Bezeichner und ist einem Studiengang zugeordnet.
 *   **Quartal:** Ein definierter Planungszeitraum (z.B. Q3 2025) mit Start- und Enddatum, für den Vorlesungen Dozierenden zugewiesen werden.
 *   **Akademisches Jahr:** Läuft vom 01.10. bis zum 30.09. des Folgejahres. Relevant für die Berechnung der 240-Stunden-Grenze externer Dozierender.
-*   **Zuordnung:** Die Verbindung einer Vorlesung (innerhalb eines Quartals) mit einem oder mehreren Dozierenden, inklusive der Angabe der jeweiligen Stundenanteile.
+*   **Geplante Vorlesung (Vorlesungsinstanz / ScheduledCourse):** Eine spezifische Durchführung einer Katalog-Vorlesung für einen bestimmten Kurs in einem bestimmten Quartal. Diese wird vom Planer "aktiviert" oder ausgewählt.
+*   **Zuordnung (Assignment):** Die Verbindung einer *geplanten Vorlesung* (also Vorlesung + Kurs + Quartal) mit einem oder mehreren Dozierenden, inklusive der Angabe der jeweiligen Stundenanteile.
 *   **Stundenkontingent (extern):** Externe Dozierende dürfen maximal 240 Stunden pro akademischem Jahr unterrichten.
-*   **Stammkatalog:** Eine zentrale Liste aller verfügbaren Vorlesungen, aus der für die Quartalsplanung ausgewählt wird.
+*   **Stammkatalog (Vorlesungen):** Eine zentrale Liste aller prinzipiell verfügbaren Vorlesungen.
 
 ## 5. Datenstruktur
 
 ### 5.1. Dozierende (Lecturers)
-    *   `lecturer_id` (Primärschlüssel, PK)
+    *   `lecturer_id` (PK, Autoincrement)
     *   `name` (Text, Pflichtfeld)
     *   `status` (Enum: 'intern', 'extern', Pflichtfeld)
-    *   `email` (Text, optional)
+    *   `email` (Text, optional, unique)
     *   `remarks` (Text, optional, z.B. Präferenzen)
 
 ### 5.2. Vorlesungen (Courses) - Stammkatalog
-    *   `course_id` (PK)
+    *   `course_catalog_id` (PK, Autoincrement)
     *   `name` (Text, Pflichtfeld)
-    *   `study_program_id` (Fremdschlüssel (FK) zu StudyPrograms, Pflichtfeld)
-    *   `semester` (Integer, z.B. 1-6, Pflichtfeld)
-    *   `standard_hours` (Integer, Stundenumfang, Pflichtfeld)
+    *   `study_program_id` (FK zu StudyPrograms, Pflichtfeld)
+    *   `default_semester` (Integer, z.B. 1-6, informativ für Auswahl, Pflichtfeld)
+    *   `standard_hours` (Integer, Stundenumfang pro Durchführung/Kurs, Pflichtfeld)
     *   `examination_type` (Text, rein informativ, z.B. "Klausur", "Projektarbeit")
 
 ### 5.3. Studiengänge (StudyPrograms)
-    *   `study_program_id` (PK)
-    *   `name` (Text, Pflichtfeld, z.B. "Wirtschaftsinformatik")
+    *   `study_program_id` (PK, Autoincrement)
+    *   `name` (Text, Pflichtfeld, unique, z.B. "Wirtschaftsinformatik")
 
-### 5.4. Quartale (Quarters)
-    *   `quarter_id` (PK)
-    *   `name` (Text, Pflichtfeld, z.B. "Q3 2025")
+### 5.4. Kurse (Cohorts)
+    *   `cohort_id` (PK, Autoincrement)
+    *   `name` (Text, Pflichtfeld, unique innerhalb eines StudyProgram, z.B. "TIF24A")
+    *   `study_program_id` (FK zu StudyPrograms, Pflichtfeld)
+    *   `is_active` (Boolean, Default: true, optional, um alte Kurse auszublenden)
+
+### 5.5. Quartale (Quarters)
+    *   `quarter_id` (PK, Autoincrement)
+    *   `name` (Text, Pflichtfeld, unique, z.B. "Q3 2025")
     *   `start_date` (Datum, Pflichtfeld)
     *   `end_date` (Datum, Pflichtfeld)
-    *   `academic_year_id` (FK zu AcademicYears)
+    *   `academic_year_id` (FK zu AcademicYears, Pflichtfeld)
 
-### 5.5. Akademische Jahre (AcademicYears)
-    *   `academic_year_id` (PK)
-    *   `name` (Text, z.B. "AY 2024/2025")
-    *   `start_date` (Datum, 01.10.JJJJ)
-    *   `end_date` (Datum, 30.09.JJJJ+1)
+### 5.6. Akademische Jahre (AcademicYears)
+    *   `academic_year_id` (PK, Autoincrement)
+    *   `name` (Text, Pflichtfeld, unique, z.B. "AY 2024/2025")
+    *   `start_date` (Datum, Pflichtfeld, 01.10.JJJJ)
+    *   `end_date` (Datum, Pflichtfeld, 30.09.JJJJ+1)
 
-### 5.6. Planungszuordnungen (Assignments)
-    *   `assignment_id` (PK)
+### 5.7. Geplante Vorlesungen (ScheduledCourses)
+    *   `scheduled_course_id` (PK, Autoincrement)
     *   `quarter_id` (FK zu Quarters, Pflichtfeld)
-    *   `course_id` (FK zu Courses, Pflichtfeld)
+    *   `cohort_id` (FK zu Cohorts, Pflichtfeld)
+    *   `course_catalog_id` (FK zu Courses, Pflichtfeld)
+    *   `custom_name` (Text, optional, falls der Name für diese Instanz leicht abweicht, Default: Name aus `Courses`)
+    *   `custom_hours` (Integer, optional, falls Stunden abweichen, Default: `standard_hours` aus `Courses`)
+    *   *Constraint: Unique combination of `quarter_id`, `cohort_id`, `course_catalog_id`*
+
+### 5.8. Planungszuordnungen (Assignments)
+    *   `assignment_id` (PK, Autoincrement)
+    *   `scheduled_course_id` (FK zu ScheduledCourses, Pflichtfeld)
     *   `lecturer_id` (FK zu Lecturers, Pflichtfeld)
-    *   `assigned_hours` (Integer, Stunden für diesen Dozenten in dieser Vorlesung in diesem Quartal, Pflichtfeld)
-    *   *Hinweis: Eine Vorlesung in einem Quartal kann mehrere Assignment-Einträge haben, wenn sie geteilt wird.*
+    *   `assigned_hours` (Integer, Stunden für diesen Dozenten in dieser geplanten Vorlesung, Pflichtfeld, >0)
+    *   *Constraint: Unique combination of `scheduled_course_id`, `lecturer_id`*
 
 ## 6. Aufbau der App (Screens, wichtige Komponenten)
 
@@ -79,72 +95,105 @@ Für den MVP konzentrieren wir uns auf folgende Screens und Kernkomponenten. All
 ### 6.1. Dashboard / Startseite
 *   **Zweck:** Einstiegspunkt nach dem Login.
 *   **Komponenten:**
-    *   Auflistung der aktuellen und zukünftigen Quartale (Name, Zeitraum).
-    *   Möglichkeit, ein Quartal auszuwählen, um zur Planungsansicht zu gelangen.
-    *   Möglichkeit, zu vergangenen (archivierten) Quartalen zu navigieren (Leseansicht).
-    *   Navigationslinks zu den Stammdatenbereichen (Dozierende, Vorlesungen, Quartale, Studiengänge).
+    *   Auflistung der aktuellen und zukünftigen Quartale (Name, Zeitraum), klickbar zur Planungsansicht.
+    *   Link/Bereich zur Ansicht vergangener (archivierter) Quartale.
+    *   Hauptnavigation zu den Stammdatenbereichen:
+        *   Dozierende
+        *   Vorlesungen (Katalog)
+        *   Studiengänge
+        *   Kurse
+        *   Quartale (& Akademische Jahre)
 
 ### 6.2. Stammdatenverwaltung
 
 #### 6.2.1. Dozierende verwalten
-*   **Zweck:** Anlegen, Anzeigen, Bearbeiten und (optional für MVP: Löschen) von Dozierenden.
-*   **Ansicht:** Tabellarische Liste aller Dozierenden mit Spalten für Name, Status, E-Mail.
+*   **Zweck:** Anlegen, Anzeigen, Bearbeiten von Dozierenden.
+*   **Ansicht:** Tabellarische Liste aller Dozierenden mit Spalten für Name, Status, E-Mail. Filter-/Suchmöglichkeit nach Name.
 *   **Funktionen:**
-    *   Button "Neuen Dozierenden anlegen" -> Formular (Name, Status, E-Mail, Bemerkungen).
-    *   Editieren eines bestehenden Dozierenden.
+    *   Button "Neuen Dozierenden anlegen" -> Formular (Name, Status (Dropdown 'intern'/'extern'), E-Mail, Bemerkungen).
+    *   Editieren eines bestehenden Dozierenden (Klick auf Eintrag -> Formular vorausgefüllt).
+    *   (Optional für MVP: Löschen eines Dozierenden, nur wenn keine Assignments existieren).
 
 #### 6.2.2. Vorlesungen verwalten (Stammkatalog)
-*   **Zweck:** Anlegen, Anzeigen, Bearbeiten und (optional für MVP: Löschen) von Vorlesungen im Stammkatalog.
-*   **Ansicht:** Tabellarische Liste aller Vorlesungen mit Spalten für Name, Studiengang, Semester, Standardstunden, Prüfungsleistung.
+*   **Zweck:** Anlegen, Anzeigen, Bearbeiten von Vorlesungen im Stammkatalog.
+*   **Ansicht:** Tabellarische Liste aller Katalog-Vorlesungen mit Spalten für Name, Studiengang, Semester, Standardstunden, Prüfungsleistung. Filter-/Suchmöglichkeit nach Name, Studiengang.
 *   **Funktionen:**
-    *   Button "Neue Vorlesung anlegen" -> Formular (Name, Studiengang (Auswahl), Semester, Standardstunden, Prüfungsleistung).
-    *   Editieren einer bestehenden Vorlesung.
+    *   Button "Neue Vorlesung anlegen" -> Formular (Name, Studiengang (Dropdown), Default-Semester, Standardstunden, Prüfungsleistung).
+    *   Editieren einer bestehenden Katalog-Vorlesung.
+    *   (Optional für MVP: Löschen, nur wenn keine `ScheduledCourses` darauf verweisen).
 
 #### 6.2.3. Studiengänge verwalten
-*   **Zweck:** Anlegen und Verwalten von Studiengängen.
-*   **Ansicht:** Liste der Studiengänge.
+*   **Zweck:** Anlegen, Anzeigen, Bearbeiten von Studiengängen.
+*   **Ansicht:** Tabellarische Liste der Studiengänge mit Spalte für Name.
 *   **Funktionen:**
     *   Button "Neuen Studiengang anlegen" -> Formular (Name).
     *   Editieren eines bestehenden Studiengangs.
+    *   (Optional für MVP: Löschen, nur wenn keine Kurse/Vorlesungen darauf verweisen).
 
-#### 6.2.4. Quartale verwalten
-*   **Zweck:** Anlegen und Verwalten von Planungsquartalen.
-*   **Ansicht:** Liste der Quartale mit Name, Start-/Enddatum.
+#### 6.2.4. Kurse verwalten
+*   **Zweck:** Anlegen, Anzeigen, Bearbeiten von Kursen.
+*   **Ansicht:** Tabellarische Liste der Kurse mit Spalten für Name (Bezeichner), zugehöriger Studiengang, Aktiv-Status. Filter-/Suchmöglichkeit nach Name, Studiengang.
 *   **Funktionen:**
-    *   Button "Neues Quartal anlegen" -> Formular (Name, Startdatum, Enddatum, Auswahl des zugehörigen Akademischen Jahres).
-    *   Editieren eines bestehenden Quartals.
-    *   *Hinweis: Akademische Jahre müssen implizit hier mitverwaltet oder separat (sehr einfach) angelegt werden können.*
+    *   Button "Neuen Kurs anlegen" -> Formular (Name, Studiengang (Dropdown), Aktiv (Checkbox)).
+    *   Editieren eines bestehenden Kurses.
+    *   (Optional für MVP: Löschen, nur wenn keine `ScheduledCourses` darauf verweisen).
+
+#### 6.2.5. Quartale & Akademische Jahre verwalten
+*   **Quartale:**
+    *   **Zweck:** Anlegen, Anzeigen, Bearbeiten von Planungsquartalen.
+    *   **Ansicht:** Liste der Quartale mit Name, Start-/Enddatum, zugehöriges Akademisches Jahr.
+    *   **Funktionen:**
+        *   Button "Neues Quartal anlegen" -> Formular (Name, Startdatum, Enddatum, Auswahl des Akademischen Jahres (Dropdown)).
+        *   Editieren eines bestehenden Quartals.
+*   **Akademische Jahre:**
+    *   **Zweck:** Anlegen, Anzeigen, Bearbeiten von Akademischen Jahren (benötigt für 240h-Regel und Quartalszuordnung).
+    *   **Ansicht:** Liste der Akademischen Jahre mit Name, Start-/Enddatum.
+    *   **Funktionen:**
+        *   Button "Neues Akademisches Jahr anlegen" -> Formular (Name, Startdatum (Default 01.10.), Enddatum (Default 30.09.)).
+        *   Editieren.
+    *   *Hinweis: Dies kann eine sehr einfache Verwaltung sein.*
 
 ### 6.3. Quartalsplanung (Kernansicht)
-*   **Zweck:** Zuweisen von Dozierenden zu Vorlesungen für ein ausgewähltes Quartal.
-*   **Zugriff:** Über Auswahl eines Quartals vom Dashboard.
+*   **Zweck:** Definieren, welche Vorlesungen für welche Kurse in diesem Quartal stattfinden, und Zuweisen von Dozierenden zu diesen geplanten Vorlesungen.
+*   **Zugriff:** Über Auswahl eines Quartals vom Dashboard. Der Name des ausgewählten Quartals wird prominent angezeigt.
 *   **Komponenten:**
-    *   **Filter:**
-        *   Nach Studiengang (essenziell für arbeitsteilige Planung).
-    *   **Anzeige:** Tabellarische Liste der Vorlesungen für das ausgewählte Quartal (und den ggf. gefilterten Studiengang).
-        *   Spalten: Vorlesungsname, Semester, Standardstunden, Bereits zugewiesene Dozierende (Name/Namen), Verbleibende Stunden (falls teil-zugewiesen).
-    *   **Aktion pro Vorlesung:** Button/Icon "Dozierende(n) zuweisen/bearbeiten".
+    *   **Filter/Auswahl des Arbeitsbereichs:**
+        *   Dropdown zur Auswahl eines Studiengangs (Pflichtauswahl zur Fokussierung der Ansicht).
+    *   **Ansicht für den ausgewählten Studiengang im gewählten Quartal:**
+        *   **Teil 1: Geplante Vorlesungen (ScheduledCourses) verwalten**
+            *   Pro Kurs des ausgewählten Studiengangs (Kurse werden als Sektionen oder Reiter dargestellt):
+                *   Anzeige der bereits für diesen Kurs im aktuellen Quartal "geplanten Vorlesungen" (`ScheduledCourses`). Spalten: Katalog-Vorlesungsname, effektive Stunden (aus `ScheduledCourse`), zugewiesene Gesamtstunden, Status (z.B. offen, teil-zugewiesen, voll zugewiesen).
+                *   Button/Aktion pro Kurs: "+ Vorlesung für [Kursname] in diesem Quartal planen"
+                    *   Öffnet Modal/Seite: Liste der Vorlesungen aus dem Stammkatalog, idealerweise vorgefiltert auf den Studiengang des Kurses und ggf. das `default_semester`. Nutzer kann Vorlesungen auswählen.
+                    *   Beim Speichern wird für jede Auswahl ein `ScheduledCourse`-Eintrag erstellt (mit Stunden aus Katalog).
+                *   Aktion pro `ScheduledCourse`: Bearbeiten (z.B. `custom_hours` anpassen, falls abweichend vom Katalog), Entfernen (löscht `ScheduledCourse` und zugehörige `Assignments`).
+        *   **Teil 2: Dozierende den geplanten Vorlesungen zuweisen (Hauptplanungsliste)**
+            *   Tabellarische Liste aller `ScheduledCourses` für den ausgewählten Studiengang und das Quartal.
+            *   Spalten: Vorlesungsname (aus Katalog), Kurs-Bezeichner, Semester (aus Katalog), Geplante Stunden (aus `ScheduledCourse`), Bereits zugewiesene Dozierende (Namen, Stundenanteile), Verbleibende Stunden für Zuweisung.
+            *   Aktion pro `ScheduledCourse` in der Liste: Button/Icon "Dozierende(n) zuweisen/bearbeiten" -> führt zu Screen 6.4.
 
 ### 6.4. Dozierenden-Zuweisungs-Modal/-Seite
-*   **Zweck:** Auswahl und Zuweisung eines oder mehrerer Dozierenden zu einer spezifischen Vorlesung im aktuellen Quartal.
-*   **Aufruf:** Aus der Quartalsplanungsansicht für eine bestimmte Vorlesung.
+*   **Zweck:** Auswahl und Zuweisung eines oder mehrerer Dozierenden zu einer spezifischen `ScheduledCourse`.
+*   **Kontext:** Klar sichtbare Informationen zur `ScheduledCourse`: Vorlesungsname (Katalog), Kursname, Geplante Stunden für diese Instanz.
 *   **Anzeige:**
-    *   Informationen zur ausgewählten Vorlesung (Name, Standardstunden).
-    *   Bereits zugewiesene Dozierende für diese Vorlesung in diesem Quartal (falls vorhanden) mit ihren Stundenanteilen.
+    *   Liste der bereits für diese `ScheduledCourse` zugewiesenen Dozierenden (falls vorhanden) mit ihren jeweiligen `assigned_hours`. Möglichkeit, bestehende Zuweisungen zu bearbeiten (Stunden ändern) oder zu entfernen.
 *   **Funktionen:**
     *   Button "Dozierenden hinzufügen".
-    *   **Dozierenden-Auswahl:**
-        *   Filterbare/Durchsuchbare Liste aller Dozierenden.
-        *   Anzeige pro Dozierendem in der Liste: Name, Status (intern/extern), Bemerkungen.
-        *   **Für externe Dozierende:** Anzeige der bereits im aktuellen *akademischen Jahr* verplanten Stunden (berechnet aus allen Assignments für diesen Dozierenden im relevanten akademischen Jahr).
-    *   **Stundeneingabe:** Nach Auswahl eines Dozierenden: Eingabefeld für die Anzahl der Stunden, die dieser Dozierende für *diese spezifische Vorlesung in diesem Quartal* übernehmen soll.
-    *   **Validierung/Warnung:**
-        *   Wenn einem externen Dozierenden Stunden zugewiesen werden, die seine Gesamtstundenzahl im akademischen Jahr über 240 Stunden heben würden, wird eine deutliche Warnung angezeigt. Die Speicherung ist trotzdem möglich (Soft Warning), aber der Planer wird informiert.
-        *   Die Summe der zugewiesenen Stunden für eine Vorlesung sollte idealerweise die Standardstunden der Vorlesung nicht überschreiten (optionale Warnung für MVP).
-    *   Speichern der Zuordnung(en) für die Vorlesung.
-    *   Möglichkeit, eine bestehende Zuordnung für diese Vorlesung zu ändern (Stunden anpassen) oder zu entfernen.
+    *   **Dozierenden-Auswahl-Bereich:**
+        *   Durchsuchbare/Filterbare Liste aller Dozierenden (Filter nach Name, Status intern/extern).
+        *   Anzeige pro Dozierendem in der Auswahl-Liste: Name, Status (intern/extern), Bemerkungen.
+        *   **Für externe Dozierende:** Dynamische Anzeige der bereits im aktuellen *akademischen Jahr* (des Planungsquartals) verplanten Stunden (Summe aller `assigned_hours` für diesen Dozenten in diesem akademischen Jahr).
+    *   **Stundeneingabe:** Nach Auswahl eines Dozierenden: Eingabefeld für die Anzahl der Stunden (`assigned_hours`), die dieser Dozierende für *diese spezifische `ScheduledCourse`* übernehmen soll.
+    *   **Validierung/Warnung beim Speichern einer Zuweisung:**
+        *   Wenn einem externen Dozierenden Stunden zugewiesen werden, die seine Gesamtstundenzahl im akademischen Jahr über 240 Stunden heben würden, wird eine deutliche, nicht-blockierende Warnung angezeigt. Die Speicherung ist trotzdem möglich.
+        *   Die Summe der `assigned_hours` für eine `ScheduledCourse` sollte die `custom_hours` (oder `standard_hours`) der `ScheduledCourse` nicht überschreiten (Warnung, wenn doch).
+    *   Speichern der Zuordnung (`Assignment`) oder der Änderungen.
 
 ### 6.5. Archivansicht (Vergangene Quartalsplanungen)
-*   **Zweck:** Einsicht in abgeschlossene Planungen.
-*   **Zugriff:** Über das Dashboard.
-*   **Ansicht:** Ähnlich der Quartalsplanungsansicht, aber rein lesend (keine Bearbeitungsfunktionen). Auswahl eines vergangenen Quartals zeigt die damaligen Zuordnungen.
+*   **Zweck:** Einsicht in abgeschlossene Planungen (Read-only).
+*   **Zugriff:** Über das Dashboard (z.B. Link "Vergangene Quartale"). Auswahl eines vergangenen Quartals.
+*   **Ansicht:**
+    *   Zeigt das ausgewählte Quartal und den zugehörigen Studiengang-Filter.
+    *   Listet die `ScheduledCourses` dieses Quartals für den gewählten Studiengang auf.
+    *   Zeigt für jede `ScheduledCourse` die damals getätigten `Assignments` (Dozierende und deren Stunden).
+    *   Keine Bearbeitungsfunktionen.
