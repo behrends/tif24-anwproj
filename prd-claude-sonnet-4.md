@@ -2,7 +2,7 @@
 
 ## DHBW Vorlesungsplanung System
 
-**Version:** 1.1
+**Version:** 1.0
 **Datum:** 2025-05-24  
 **Erstellt von:** behrends
 
