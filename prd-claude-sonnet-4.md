@@ -2,7 +2,7 @@
 
 ## DHBW Vorlesungsplanung System
 
-**Version:** 1.0
+**Version:** 1.1
 **Datum:** 2025-05-24  
 **Erstellt von:** behrends
 
@@ -103,34 +103,103 @@ Ein intuitives Web-Tool zur effizienten Planung und Verwaltung von Vorlesungen a
 
 - **Frontend:** Next.js 14+ mit TypeScript
 - **UI Framework:** Tailwind CSS + shadcn/ui
-- **Backend:** Next.js API Routes
-- **Datenbank:** SQLite (MVP + Production)
+- **Backend:** MVP ohne Backend → später Next.js API Routes
+- **Datenbank:** MVP mit localStorage → später SQLite/PostgreSQL
 - **Authentication:** Dummy-Auth → später Keycloak SSO
 
-### 5.2 Datenmodell
+### 5.2 MVP Data Layer (localStorage)
 
-```sql
--- Dozierende
-Lecturers: id, firstname, lastname, title, type, yearly_hours_limit
+```typescript
+// Data Storage im Browser localStorage
+interface ApplicationData {
+  lecturers: Lecturer[];
+  users: User[];
+  studyPrograms: StudyProgram[];
+  courses: Course[];
+  lectures: Lecture[];
+}
 
--- Nutzer
-Users: id, firstname, lastname, title, email, role, assigned_study_programs[]
-
--- Studiengänge
-StudyPrograms: id, name, short_name, description
-
--- Kurse
-Courses: id, study_program_id, name, semester
-
--- Vorlesungen
-Lectures: id, course_id, title, hours, quarter, lecturer_id
+// Service-Abstraktion für spätere Backend-Migration
+abstract class DataService<T> {
+  abstract getAll(): Promise<T[]>;
+  abstract getById(id: string): Promise<T | null>;
+  abstract create(item: T): Promise<T>;
+  abstract update(id: string, item: Partial<T>): Promise<T>;
+  abstract delete(id: string): Promise<void>;
+}
 ```
 
-### 5.3 Deployment
+### 5.3 Datenmodell (TypeScript Interfaces)
 
-- **Hosting:** On-premises mit Traefik
-- **Container:** Single Docker Container
-- **Backup:** File-basierte SQLite-Sicherung
+```typescript
+interface Lecturer {
+  id: string;
+  firstname: string;
+  lastname: string;
+  title?: string;
+  email?: string;
+  type: 'internal' | 'external';
+  yearlyHoursLimit?: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+interface User {
+  id: string;
+  firstname: string;
+  lastname: string;
+  title?: string;
+  email: string;
+  role: 'admin' | 'manager' | 'director';
+  assignedStudyPrograms: string[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+interface StudyProgram {
+  id: string;
+  name: string;
+  shortName: string;
+  description?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+interface Course {
+  id: string;
+  studyProgramId: string;
+  name: string;
+  semester: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+interface Lecture {
+  id: string;
+  courseId: string;
+  title: string;
+  hours: number;
+  quarter: 'Q1' | 'Q2' | 'Q3' | 'Q4';
+  year: number;
+  lecturerId?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+```
+
+### 5.4 Migration-Ready Architecture
+
+- **Service Layer:** Abstrahierte Data Services für alle CRUD-Operationen
+- **State Management:** React Query/SWR für einheitliche Data-Patterns
+- **Validation:** Zod Schemas für Frontend- und später Backend-Validation
+- **Error Handling:** Konsistente Error-Patterns von Anfang an
+- **TypeScript:** Strikte Typisierung für nahtlose Backend-Migration
+
+### 5.5 Deployment
+
+- **MVP:** Static Site Hosting (Vercel, Netlify, oder einfach lokaler Server)
+- **Später:** On-premises mit Traefik + Container
+- **Backup:** MVP keine Backups nötig → später file-basierte SQLite-Sicherung
 - **Performance:** Optimiert für 15 concurrent users
 
 ---
@@ -267,27 +336,31 @@ Lectures: id, course_id, title, hours, quarter, lecturer_id
 
 ### Enthalten
 
+- ✅ Frontend-Only Architektur mit localStorage
+- ✅ Migration-Ready Service Layer für spätere Backend-Integration
 - ✅ Dozierenden-Verwaltung mit Stundenkontrolle
 - ✅ Basis-Kurs und Vorlesungsplanung
 - ✅ Quartalsansicht mit Übersichtsdashboard
 - ✅ User-Management mit Rollenkonzept
 - ✅ Responsive Web-Interface
-- ✅ SQLite-basierte Persistierung
+- ✅ TypeScript-Interfaces für alle Datenstrukturen
 
 ### Nice-to-Have (Post-MVP)
 
+- 📋 Backend-Migration mit SQLite/PostgreSQL
 - 📋 Excel-Import für bestehende Daten
 - 📋 Erweiterte Reporting-Funktionen
 - 📋 Keycloak SSO-Integration
 - 📋 Automatische E-Mail-Benachrichtigungen
 - 📋 Mobile-optimierte Ansichten
+- 📋 Real-time Collaboration Features
 
 ### Ausgeschlossen
 
 - ❌ Direkter Dozierenden-Zugang
 - ❌ Komplexe Approval-Workflows
-- ❌ Real-time Collaboration
 - ❌ Integration mit anderen DHBW-Systemen
+- ❌ Multi-User Synchronisation (localStorage-Limitation)
 
 ---
 
@@ -295,23 +368,68 @@ Lectures: id, course_id, title, hours, quarter, lecturer_id
 
 ### Technische Risiken
 
-| Risiko                                     | Wahrscheinlichkeit | Impact  | Mitigation                                  |
-| ------------------------------------------ | ------------------ | ------- | ------------------------------------------- |
-| SQLite Performance bei concurrent access   | Mittel             | Mittel  | Optimistische Locking, Connection Pooling   |
-| Datenkorruption bei simultaner Bearbeitung | Niedrig            | Hoch    | Transaktionale Updates, regelmäßige Backups |
-| Browser-Kompatibilität                     | Niedrig            | Niedrig | Standard Web-APIs, Progressive Enhancement  |
+| Risiko                                            | Wahrscheinlichkeit | Impact  | Mitigation                                        |
+| ------------------------------------------------- | ------------------ | ------- | ------------------------------------------------- |
+| localStorage Datenexport bei Backend-Migration    | Mittel             | Mittel  | Export/Import-Features in MVP einbauen            |
+| Browser localStorage Limits (5-10MB)              | Niedrig            | Mittel  | Datenmodell schlank halten, Monitoring            |
+| Mehrere Browser/Geräte = verschiedene Datenstände | Hoch               | Niedrig | Bewusste MVP-Limitation, später Backend           |
+| Service-Abstraktion zu komplex für MVP            | Niedrig            | Niedrig | Einfache Interfaces, erst bei Migration erweitern |
 
 ### Business Risiken
 
-| Risiko                                          | Wahrscheinlichkeit | Impact | Mitigation                                          |
-| ----------------------------------------------- | ------------------ | ------ | --------------------------------------------------- |
-| User Adoption zu langsam                        | Mittel             | Hoch   | Change Management, Training, schrittweise Migration |
-| Requirements ändern sich                        | Hoch               | Mittel | Agile Entwicklung, regelmäßige Stakeholder-Reviews  |
-| Integration mit Keycloak komplexer als erwartet | Mittel             | Mittel | MVP mit Dummy-Auth, Keycloak als separate Phase     |
+| Risiko                             | Wahrscheinlichkeit | Impact | Mitigation                                                      |
+| ---------------------------------- | ------------------ | ------ | --------------------------------------------------------------- |
+| User Adoption zu langsam           | Mittel             | Hoch   | Change Management, Training, schrittweise Migration             |
+| Requirements ändern sich           | Hoch               | Mittel | Agile Entwicklung, regelmäßige Stakeholder-Reviews              |
+| MVP zu limitiert für echte Nutzung | Mittel             | Mittel | Klare Kommunikation der MVP-Grenzen, schnelle Backend-Migration |
+
+### MVP-spezifische Risiken
+
+| Risiko                                | Wahrscheinlichkeit | Impact  | Mitigation                             |
+| ------------------------------------- | ------------------ | ------- | -------------------------------------- |
+| localStorage-Daten gehen verloren     | Mittel             | Mittel  | Export-Feature einbauen, User-Training |
+| Keine Multi-User Kollaboration in MVP | Hoch               | Niedrig | Bewusste Limitation, kurze MVP-Phase   |
 
 ---
 
-## 11. Testdaten & Content
+## 11. Migration Strategy (localStorage → Backend)
+
+### Phase 1: MVP (localStorage)
+
+- Frontend-Only mit Service-Abstraktion
+- Alle Daten in localStorage persistiert
+- TypeScript-Interfaces definiert
+- Export/Import-Funktionen für Datensicherung
+
+### Phase 2: Backend Integration
+
+```typescript
+// Service-Implementierung austauschen
+// Von localStorage...
+class LocalStorageLecturerService extends DataService<Lecturer> {
+  async getAll(): Promise<Lecturer[]> {
+    return JSON.parse(localStorage.getItem('lecturers') || '[]');
+  }
+}
+
+// ...zu API Service
+class ApiLecturerService extends DataService<Lecturer> {
+  async getAll(): Promise<Lecturer[]> {
+    return fetch('/api/lecturers').then((r) => r.json());
+  }
+}
+```
+
+### Phase 3: Production Ready
+
+- SQLite/PostgreSQL Datenbank
+- Backup & Recovery Systeme
+- Multi-User Synchronisation
+- Keycloak SSO Integration
+
+---
+
+## 12. Testdaten & Content
 
 ### Datenansatz
 
@@ -321,9 +439,22 @@ Lectures: id, course_id, title, hours, quarter, lecturer_id
 - **Dummy-Personen:** Fiktive Dozierende und User mit realistischen Titeln
 - **Realistische Vorlesungen:** Passend zu echten Studiengängen
 
+### MVP Seed Data
+
+```typescript
+// Fest in App integrierte Dummy-Daten für sofortigen Start
+const seedData: ApplicationData = {
+  lecturers: [...],
+  users: [...],
+  studyPrograms: [...],
+  courses: [...],
+  lectures: [...]
+}
+```
+
 ---
 
-## 12. Erfolgskriterien
+## 13. Erfolgskriterien
 
 ### Quantitative Ziele
 
@@ -336,3 +467,9 @@ Lectures: id, course_id, title, hours, quarter, lecturer_id
 - Intuitive Bedienung ohne Schulungsaufwand
 - Bessere Übersicht über Dozierende-Kapazitäten
 - Reduzierte Planungsfehler durch Validierung
+
+### MVP-spezifische Erfolgskriterien
+
+- Stakeholder können MVP nach 2 Wochen Entwicklung testen
+- Feedback-Zyklen unter 24h durch sofortige Deployment-Möglichkeit
+- Validierung aller Core-Workflows ohne Backend-Komplexität
