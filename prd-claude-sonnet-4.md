@@ -2,7 +2,7 @@
 
 ## DHBW Vorlesungsplanung System
 
-**Version:** 1.1
+**Version:** 1.2
 **Datum:** 2025-05-24  
 **Erstellt von:** behrends
 
@@ -91,7 +91,7 @@ Ein intuitives Web-Tool zur effizienten Planung und Verwaltung von Vorlesungen a
 
 ### 4.5 Benutzer-Management
 
-- **Rollen:** Admin, Manager, Director
+- **Rollen:** Admin, User
 - **Berechtigungen:** Zuordnung zu Studiengängen
 - **Freie Bearbeitung:** Kollaborative Planung ohne Approval-Workflows
 
@@ -150,7 +150,7 @@ interface User {
   lastname: string;
   title?: string;
   email: string;
-  role: 'admin' | 'manager' | 'director';
+  role: 'admin' | 'user';
   assignedStudyPrograms: string[];
   createdAt: string;
   updatedAt: string;
@@ -222,7 +222,6 @@ interface Lecture {
 
 - **Validierung:** Pflichtfelder, Datentyp-Kontrolle
 - **Konsistenz:** Referenzielle Integrität zwischen Entitäten
-- **Historisierung:** Änderungsprotokoll für Nachverfolgung
 
 ---
 
@@ -353,6 +352,7 @@ interface Lecture {
 - 📋 Keycloak SSO-Integration
 - 📋 Automatische E-Mail-Benachrichtigungen
 - 📋 Mobile-optimierte Ansichten
+- 📋 Änderungsprotokoll für Nachverfolgung
 - 📋 Real-time Collaboration Features
 
 ### Ausgeschlossen
