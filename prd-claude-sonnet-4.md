@@ -1,291 +1,338 @@
 # Product Requirements Document (PRD)
 
-## DHBW Lörrach - Vorlesungsplanungs-System
+## DHBW Vorlesungsplanung System
+
+**Version:** 1.1
+**Datum:** 2025-05-24  
+**Erstellt von:** behrends
 
 ---
 
 ## 1. Executive Summary
 
-### 1.1 Vision
+### Vision
 
-Entwicklung einer benutzerfreundlichen Webanwendung zur digitalen Vorlesungsplanung, die das aktuelle Excel-basierte System der DHBW Lörrach ersetzt und kollaboratives, effizientes Planen ermöglicht.
+Ein intuitives Web-Tool zur effizienten Planung und Verwaltung von Vorlesungen an der DHBW, das die bisherige Excel-basierte Planung ablöst und bessere Übersicht über Dozierende, Kurse und Stundenverteilung bietet.
 
-### 1.2 Problemstellung
+### Ziele
 
-Das aktuelle Excel-System verursacht:
-
-- Doppelbelegungen von Dozierenden
-- Unübersichtliche Datenhaltung mit vielen Spalten
-- Fehlende Kollaborationsmöglichkeiten
-- Mangelnde Statusverfolgung (zugesagt/abgesagt/ausstehend)
-- Umständliche Handhabung ohne Fortschrittsüberblick
+- Ablösung der Excel-basierten Vorlesungsplanung
+- Zentrale Verwaltung von Dozierenden und deren Stundenkapazitäten
+- Übersichtliche Quartalsplanung mit Konfliktprävention
+- Einfache Handhabung für 15 interne DHBW-Mitarbeiter\*innen
 
 ---
 
-## 2. Zielgruppe & Nutzer
+## 2. Problemstellung
 
-### 2.1 Primäre Nutzer (15 Personen)
+### Aktuelle Herausforderungen
 
-- **Studiengangsmanager\*innen:** 3-4 Personen
-- **Studiengangsleiter\*innen:** ~11 Personen (übernehmen Planung in Studiengängen ohne Manager\*innen)
+- **Excel-Chaos:** Unübersichtliche Tabellen, Versionskonflikte, fehlende Synchronisation
+- **Manuelle Stundenverfolgung:** Keine automatische Überwachung der 240h-Grenze für externe Dozierende
+- **Fehlende Übersicht:** Schwierig zu erkennen, wer wann wie viele Stunden hat
+- **Planungsfehler:** Doppelbelegungen und Überschreitungen werden erst spät erkannt
+- **Kollaboration:** Mehrere Personen können nicht gleichzeitig an der Planung arbeiten
+- **Keine Historisierung:** Änderungen sind schwer nachvollziehbar
 
-### 2.2 Nutzerrollen & Berechtigungen
+### Pain Points
 
-| Rolle                       | Berechtigung                                            |
-| --------------------------- | ------------------------------------------------------- |
-| **Studiengangsmanager\*in** | Nur eigene zugewiesene Studiengänge einsehen/bearbeiten |
-| **Studiengangsleiter\*in**  | Nur eigene zugewiesene Studiengänge einsehen/bearbeiten |
-| **Admin**                   | Alle Daten einsehen und ändern, Stammdaten verwalten    |
-
----
-
-## 3. Datenmodell & Rahmenbedingungen
-
-### 3.1 Organisationsstruktur
-
-- **10 Studiengänge** (Dummy-Daten für MVP)
-- **1-2 Kurse pro Studiengang**
-- **Kurs:** Feste Studierendengruppe über 6 Semester
-- **25 Dozierende** (Dummy-Daten für MVP)
-
-### 3.2 Quartalsystem
-
-- **Theoriephase:** Vorlesungen an der DHBW (meist 1 Quartal)
-- **Praxisphase:** Studierende im Unternehmen (anderes Quartal)
-- **Planungshorizont:** 2-3 Quartale im Voraus
-- **Zeiträume:** Konkrete Start-/Enddaten pro Kurs/Quartal (z.B. 7. Jan - 29. März)
-
-### 3.3 Dozierende & Stundenkontingente
-
-- **Interne Dozierende:** Unbegrenzte Stunden
-- **Externe Dozierende:** Max. 240 Stunden/Jahr ⚠️ Tracking erforderlich
-- **Team-Teaching:** Mehrere Dozierende pro Vorlesung möglich
-
-### 3.4 Vorlesungsattribute
-
-- Variable Stundenzahl
-- Unterschiedliche Prüfungsformen
-- Zuordnung zu Kurs und Quartal
+- 📊 **Studiengangsmanager\*innen:** "Ich verliere den Überblick über die Dozierenden-Kapazitäten"
+- ⏰ **Zeitaufwand:** "Planung dauert viel zu lange durch Excel-Jonglage"
+- 🚨 **Konfliktrisiko:** "Überschreitungen bemerken wir oft zu spät"
+- 👥 **Teamwork:** "Parallel arbeiten führt zu Versionskonflikten"
 
 ---
 
-## 4. MVP Features & User Stories
+## 3. Stakeholder & Zielgruppe
 
-### 4.1 Kern-Features (Must-Have)
+### Primäre Nutzer (15 Personen intern)
 
-#### F1: Studiengang & Kurs Management
+- **Studiengangsmanager\*innen:** Planen Vorlesungen für ihre Studiengänge
+- **Studiengangsleitungen:** Überblick und Koordination
+- **Administratoren:** System- und Benutzerverwaltung
 
-**User Story:** Als Studiengangsmanager\*in möchte ich meinen Studiengang und Kurs auswählen können, um eine spezifische Planung zu beginnen.
+### Dozierende (kein direkter Systemzugang)
 
-**Acceptance Criteria:**
-
-- Dropdown/Auswahl für zugewiesene Studiengänge
-- Kursauswahl basierend auf gewähltem Studiengang
-- Nur Zugriff auf eigene Studiengänge (außer Admin)
-
-#### F2: Quartal & Zeitraum Management
-
-**User Story:** Als Planer\*in möchte ich ein Quartal auswählen und den konkreten Zeitraum festlegen können.
-
-**Acceptance Criteria:**
-
-- Quartalsauswahl (Q1, Q2, Q3, Q4)
-- Start-/Enddatum-Eingabe für gewähltes Quartal
-- Planung für 2-3 Quartale im Voraus möglich
-
-#### F3: Vorlesungsübersicht
-
-**User Story:** Als Planer\*in möchte ich alle Vorlesungen für einen gewählten Kurs und Zeitraum sehen.
-
-**Acceptance Criteria:**
-
-- Tabellarische Übersicht aller Vorlesungen
-- Anzeige von Stundenzahl und Prüfungsform
-- Filtermöglichkeiten nach Status
-
-#### F4: Dozierenden-Zuordnung
-
-**User Story:** Als Planer\*in möchte ich Dozierende zu Vorlesungen zuordnen können.
-
-**Acceptance Criteria:**
-
-- Dropdown/Suche für verfügbare Dozierende
-- Mehrfachzuordnung möglich (Team-Teaching)
-- Anzeige von Dozent-Typ (intern/extern)
-- Warnung bei Überschreitung der 240h-Grenze (externe Dozierende)
-
-#### F5: Status-Tracking
-
-**User Story:** Als Planer\*in möchte ich den Status von Dozentenanfragen verfolgen können.
-
-**Acceptance Criteria:**
-
-- Status: Ausstehend, Zugesagt, Abgesagt
-- Farbkodierung für schnelle Übersicht
-- Filtermöglichkeit nach Status
-
-#### F6: Planungsübersicht
-
-**User Story:** Als Planer\*in möchte ich die komplette Planung für einen Kurs und Quartal einsehen können.
-
-**Acceptance Criteria:**
-
-- Vollständige Übersicht aller Vorlesungen mit Dozierenden
-- Status-Übersicht (wie viele zugesagt/offen/abgesagt)
-- Stunden-Tracking pro Dozent\*in
-
-#### F7: PDF-Export
-
-**User Story:** Als Planer\*in möchte ich die Planung als PDF exportieren können.
-
-**Acceptance Criteria:**
-
-- Generierung einer übersichtlichen PDF-Datei
-- Enthält alle relevanten Planungsdaten
-- Professional formatiert für offizielle Verwendung
-
-### 4.2 Authentication & Authorization (MVP)
-
-**User Story:** Als Nutzer\*in möchte ich mich einfach anmelden können.
-
-**MVP-Lösung:**
-
-- Button/Dropdown zur Benutzerauswahl (Dummy-Login)
-- Verschiedene Test-Accounts mit unterschiedlichen Studiengängen
-- Später: Keycloak SSO-Integration
+- Externe Kommunikation läuft über DHBW-Mitarbeiter\*innen
+- Keine eigenen Accounts oder direkter Zugang zum System
 
 ---
 
-## 5. Technische Spezifikation
+## 4. Funktionale Anforderungen
 
-### 5.1 Tech Stack
+### 4.1 Dozierenden-Verwaltung
 
-- **Frontend:** Next.js mit TypeScript
+- **Stammdaten:** Vorname, Nachname, Titel, E-Mail
+- **Kategorisierung:** Intern/Extern
+- **Stundenkapazität:**
+  - Interne Dozierende: Unbegrenzt
+  - Externe Dozierende: 240h Jahresgrenze
+- **Überschreitungskontrolle:** Soft-Block mit Warnung und Bestätigung
+
+### 4.2 Studiengang-Verwaltung
+
+- Stammdaten der ~10 DHBW-Studiengänge
+- Zuordnung von Dozierenden zu Studiengängen
+- Hierarchische Kurs-Struktur pro Studiengang
+
+### 4.3 Kurs-Verwaltung
+
+- Kurse mit Multiple-Choice Vorlesungen
+- Quartalsweise Planung (Q1-Q4)
+- Vorlesungsdetails: Titel, Stundenzahl, Dozent\*in
+- Automatische Stundenberechnung
+
+### 4.4 Planungsübersicht
+
+- **Dashboard:** Übersicht aller Studiengänge und Planungsstatus
+- **Quartalsansicht:** Detailplanung pro Quartal
+- **Dozentenübersicht:** Aktuelle Stundenverteilung und Kapazitäten
+- **Konflikterkennung:** Automatische Warnung bei Überschreitungen
+
+### 4.5 Benutzer-Management
+
+- **Rollen:** Admin, Manager, Director
+- **Berechtigungen:** Zuordnung zu Studiengängen
+- **Freie Bearbeitung:** Kollaborative Planung ohne Approval-Workflows
+
+---
+
+## 5. Technische Anforderungen
+
+### 5.1 Architektur
+
+- **Frontend:** Next.js 14+ mit TypeScript
 - **UI Framework:** Tailwind CSS + shadcn/ui
-- **Database:** SQLite (MVP) → PostgreSQL (Production)
-- **Deployment:** Web-Anwendung (Desktop-optimiert)
+- **Backend:** Next.js API Routes
+- **Datenbank:** SQLite (MVP + Production)
+- **Authentication:** Dummy-Auth → später Keycloak SSO
 
-### 5.2 Datenbank Schema (vereinfacht)
+### 5.2 Datenmodell
 
 ```sql
+-- Dozierende
+Lecturers: id, firstname, lastname, title, type, yearly_hours_limit
+
+-- Nutzer
+Users: id, firstname, lastname, title, email, role, assigned_study_programs[]
+
 -- Studiengänge
-StudyPrograms: id, name, manager_id
+StudyPrograms: id, name, short_name, description
 
 -- Kurse
 Courses: id, study_program_id, name, semester
 
--- Dozierende
-Lecturers: id, name, type (internal/external), yearly_hours_limit
-
 -- Vorlesungen
-Lectures: id, course_id, name, hours, exam_type, quarter_id
-
--- Quartal/Zeiträume
-Quarters: id, course_id, quarter (Q1-Q4), start_date, end_date
-
--- Zuordnungen
-LectureAssignments: id, lecture_id, lecturer_id, status (pending/confirmed/declined)
-
--- Nutzer
-Users: id, name, role, assigned_study_programs[]
+Lectures: id, course_id, title, hours, quarter, lecturer_id
 ```
 
-### 5.3 Performance Requirements
+### 5.3 Deployment
 
-- **Nutzer:** Max. 15 concurrent users
-- **Response Time:** < 2 Sekunden für Standard-Operationen
-- **Data Volume:** ~20 Kurse, ~200 Vorlesungen, ~25 Dozierende
+- **Hosting:** On-premises mit Traefik
+- **Container:** Single Docker Container
+- **Backup:** File-basierte SQLite-Sicherung
+- **Performance:** Optimiert für 15 concurrent users
 
 ---
 
-## 6. Nice-to-Have Features (Future Releases)
+## 6. Business Rules
 
-### 6.1 Phase 2 Features
+### 6.1 Stundenregeln
 
-- **Konflikt-Erkennung:** Automatische Warnung bei Terminüberschneidungen
-- **Kalender-Integration:** Import/Export zu/von Outlook/Google Calendar
-- **E-Mail-Benachrichtigungen:** Automatische Anfragen an Dozierende
-- **Reporting:** Auslastungs-Reports, Statistiken
-- **Bulk-Operations:** Mehrere Zuordnungen gleichzeitig
+- **Externe Dozierende:** Maximal 240h pro Jahr
+- **Überschreitung:** Warnung + Bestätigungsdialog ("Trotzdem zuordnen?")
+- **Tracking:** Automatische Berechnung über alle Quartale
 
-### 6.2 Phase 3 Features
+### 6.2 Planungsregeln
 
-- **Mobile Responsiveness:** Tablet/Smartphone-Optimierung
-- **Advanced Search:** Volltext-Suche über alle Daten
-- **Workflow-Management:** Approval-Prozesse
-- **Integration:** Verbindung zu bestehenden DHBW-Systemen
+- **Berechtigung:** Freie Bearbeitung in zugewiesenen Studiengängen
+- **Deadline:** 3 Wochen vor Quartalsbeginn (informativ, keine Enforcement)
+- **Kollaboration:** Mehrere User können gleichzeitig planen
 
----
+### 6.3 Datenregeln
 
-## 7. Wireframe-Konzept
-
-### 7.1 Hauptnavigation
-
-```
-[Logo DHBW Lörrach] [Studiengang: BWL ▼] [Quartal: Q1 2024 ▼] [User: Max Mustermann ▼]
-```
-
-### 7.2 Dashboard-Layout
-
-```
-┌─────────────────────────────────────────────────────────────┐
-│ Kurs: BWL-A (Q1 2024: 07.01 - 29.03.2024)                  │
-│ Status: 12/20 Vorlesungen geplant | 8 ausstehend            │
-├─────────────────────────────────────────────────────────────┤
-│ [Filter: Alle ▼] [Status: Alle ▼] [Export PDF]             │
-├─────────────────────────────────────────────────────────────┤
-│ Vorlesung            │Std│Prüfung  │Dozent*in      │Status  │
-│ Marketing Grundlagen │24 │Klausur  │Dr. Müller     │✅ Zu   │
-│ Statistik           │32 │Projekt  │[+ Zuordnen]   │⏳ Offen│
-│ Unternehmensführung │20 │Präsent. │Prof. Weber +1 │❌ Ab   │
-└─────────────────────────────────────────────────────────────┘
-```
+- **Validierung:** Pflichtfelder, Datentyp-Kontrolle
+- **Konsistenz:** Referenzielle Integrität zwischen Entitäten
+- **Historisierung:** Änderungsprotokoll für Nachverfolgung
 
 ---
 
-## 8. Success Metrics
+## 7. User Stories
 
-### 8.1 MVP Success Criteria
+### Als Studiengangsmanager\*in möchte ich...
 
-- **Adoption:** 100% der Planer\*innen nutzen das System
-- **Efficiency:** 50% Zeitersparnis vs. Excel-Lösung
-- **Quality:** 90% Reduktion von Doppelbelegungen
-- **Satisfaction:** 8/10 User Satisfaction Score
+- Vorlesungen für meine Studiengänge planen können
+- Sehen, welche Dozierende verfügbar sind
+- Stundenkapazitäten von externen Dozierenden überwachen
+- Quartalsplanungen einfach anpassen können
 
-### 8.2 Key Performance Indicators
+### Als Studiengangsleiterin möchte ich...
 
-- Anzahl geplanter Vorlesungen pro Woche
-- Zeit bis zur vollständigen Quartalplanung
-- Anzahl Planungsfehler/Konflikte
-- User Adoption Rate
+- Überblick über alle meine Studiengänge haben
+- Planungsstatus der verschiedenen Quartale einsehen
+- Bei Bedarf Planungen korrigieren können
 
----
+### Als Administrator\*in möchte ich...
 
-## 9. Risiken & Mitigation
-
-| Risiko                 | Wahrscheinlichkeit | Impact | Mitigation                               |
-| ---------------------- | ------------------ | ------ | ---------------------------------------- |
-| Datenmigrationsaufwand | Mittel             | Hoch   | Schrittweise Migration, Excel-Import     |
-| User Adoption          | Niedrig            | Hoch   | Training, graduelle Einführung           |
-| Technische Komplexität | Niedrig            | Mittel | MVP-First Approach, bewährter Tech Stack |
+- Neue Dozierende und User anlegen können
+- Berechtigungen verwalten können
+- Systemweite Übersicht über alle Planungen haben
 
 ---
 
-## 10. Timeline & Nächste Schritte
+## 8. Wireframes (Low-Fi)
 
-### 10.1 MVP Development (8-12 Wochen)
+### 8.1 Dashboard
 
-- **Woche 1-2:** Setup & Basic CRUD Operations
-- **Woche 3-4:** Core Planning Features (F1-F4)
-- **Woche 5-6:** Status Tracking & Overview (F5-F6)
-- **Woche 7-8:** PDF Export & Polish (F7)
-- **Woche 9-10:** Testing & Feedback Integration
-- **Woche 11-12:** Deployment & User Training
+```
+┌─────────────────────────────────────────────────────┐
+│ DHBW Vorlesungsplanung                   [Profile] │
+├─────────────────────────────────────────────────────┤
+│ Dashboard | Dozierende | Quartale | Admin          │
+├─────────────────────────────────────────────────────┤
+│                                                     │
+│ Meine Studiengänge           Aktuelle Übersicht    │
+│ ┌─────────────────┐         ┌─────────────────┐     │
+│ │ BWL             │         │ Q1 2024: 85%    │     │
+│ │ 📊 Q1: ✅ Q2: ⚠️│         │ Q2 2024: 40%    │     │
+│ └─────────────────┘         │ Q3 2024: 10%    │     │
+│ ┌─────────────────┐         └─────────────────┘     │
+│ │ Informatik      │                               │
+│ │ 📊 Q1: ✅ Q2: ❌│         Externe Dozierende     │
+│ └─────────────────┘         ┌─────────────────┐     │
+│                            │ Dr. Müller:     │     │
+│ [+ Neuer Studiengang]      │ 180/240h        │     │
+│                            │ ▓▓▓▓▓▓▓░░░      │     │
+│                            └─────────────────┘     │
+└─────────────────────────────────────────────────────┘
+```
 
-### 10.2 Immediate Next Steps
+### 8.2 Quartalsplanung
 
-1. **Wireframes erstellen** für key user flows
-2. **Datenbank Schema** detailliert ausarbeiten
-3. **Development Environment** Setup
-4. **Dummy Data** Generator entwickeln
-5. **User Testing** Plan erstellen
+```
+┌─────────────────────────────────────────────────────┐
+│ Quartalsplanung Q2 2024 - BWL                      │
+├─────────────────────────────────────────────────────┤
+│ [Q1] [Q2] [Q3] [Q4]    Filter: [Alle] [Geplant]    │
+├─────────────────────────────────────────────────────┤
+│                                                     │
+│ Kurs: BWL Semester 3                               │
+│ ┌───────────────────────────────────────────────────┐ │
+│ │ Vorlesung                │ Std │ Dozent*in        │ │
+│ │ Marketing Grundlagen     │ 20  │ [Dr. Schmidt ▼] │ │
+│ │ Controlling              │ 16  │ [Nicht geplant]  │ │
+│ │ Projektmanagement        │ 12  │ [Prof. Müller▼] │ │
+│ └───────────────────────────────────────────────────┘ │
+│                                                     │
+│ Kurs: BWL Semester 5                               │
+│ ┌───────────────────────────────────────────────────┐ │
+│ │ Unternehmensführung      │ 24  │ [Prof. Weber ▼] │ │
+│ │ Wirtschaftsrecht         │ 18  │ [Nicht geplant]  │ │
+│ └───────────────────────────────────────────────────┘ │
+│                                                     │
+│                   [Speichern] [Exportieren]        │
+└─────────────────────────────────────────────────────┘
+```
+
+### 8.3 Dozierenden-Übersicht
+
+```
+┌─────────────────────────────────────────────────────┐
+│ Dozierende                           [+ Hinzufügen] │
+├─────────────────────────────────────────────────────┤
+│ Filter: [Alle] [Intern] [Extern]   Suche: [____]   │
+├─────────────────────────────────────────────────────┤
+│                                                     │
+│ ┌───────────────────────────────────────────────────┐ │
+│ │ Prof. Dr. Anna Schmidt (Intern)                   │ │
+│ │ 📧 schmidt@dhbw.de                               │ │
+│ │ 📊 2024: 45h geplant                             │ │
+│ │ BWL Marketing, Controlling                       │ │
+│ │                              [Bearbeiten] [📊]  │ │
+│ └───────────────────────────────────────────────────┘ │
+│                                                     │
+│ ┌───────────────────────────────────────────────────┐ │
+│ │ Dr. Hans Müller (Extern) ⚠️                      │ │
+│ │ 📧 mueller@extern.de                             │ │
+│ │ 📊 2024: 185/240h ▓▓▓▓▓▓▓▓░░                    │ │
+│ │ Informatik Programmierung, Datenbanken          │ │
+│ │                              [Bearbeiten] [📊]  │ │
+│ └───────────────────────────────────────────────────┘ │
+└─────────────────────────────────────────────────────┘
+```
+
+---
+
+## 9. MVP Scope
+
+### Enthalten
+
+- ✅ Dozierenden-Verwaltung mit Stundenkontrolle
+- ✅ Basis-Kurs und Vorlesungsplanung
+- ✅ Quartalsansicht mit Übersichtsdashboard
+- ✅ User-Management mit Rollenkonzept
+- ✅ Responsive Web-Interface
+- ✅ SQLite-basierte Persistierung
+
+### Nice-to-Have (Post-MVP)
+
+- 📋 Excel-Import für bestehende Daten
+- 📋 Erweiterte Reporting-Funktionen
+- 📋 Keycloak SSO-Integration
+- 📋 Automatische E-Mail-Benachrichtigungen
+- 📋 Mobile-optimierte Ansichten
+
+### Ausgeschlossen
+
+- ❌ Direkter Dozierenden-Zugang
+- ❌ Komplexe Approval-Workflows
+- ❌ Real-time Collaboration
+- ❌ Integration mit anderen DHBW-Systemen
+
+---
+
+## 10. Risiken & Mitigation
+
+### Technische Risiken
+
+| Risiko                                     | Wahrscheinlichkeit | Impact  | Mitigation                                  |
+| ------------------------------------------ | ------------------ | ------- | ------------------------------------------- |
+| SQLite Performance bei concurrent access   | Mittel             | Mittel  | Optimistische Locking, Connection Pooling   |
+| Datenkorruption bei simultaner Bearbeitung | Niedrig            | Hoch    | Transaktionale Updates, regelmäßige Backups |
+| Browser-Kompatibilität                     | Niedrig            | Niedrig | Standard Web-APIs, Progressive Enhancement  |
+
+### Business Risiken
+
+| Risiko                                          | Wahrscheinlichkeit | Impact | Mitigation                                          |
+| ----------------------------------------------- | ------------------ | ------ | --------------------------------------------------- |
+| User Adoption zu langsam                        | Mittel             | Hoch   | Change Management, Training, schrittweise Migration |
+| Requirements ändern sich                        | Hoch               | Mittel | Agile Entwicklung, regelmäßige Stakeholder-Reviews  |
+| Integration mit Keycloak komplexer als erwartet | Mittel             | Mittel | MVP mit Dummy-Auth, Keycloak als separate Phase     |
+
+---
+
+## 11. Testdaten & Content
+
+### Datenansatz
+
+**Mix aus echten + Dummy-Daten:**
+
+- **Echte DHBW-Studiengänge:** BWL, Informatik, Maschinenbau, etc.
+- **Dummy-Personen:** Fiktive Dozierende und User mit realistischen Titeln
+- **Realistische Vorlesungen:** Passend zu echten Studiengängen
+
+---
+
+## 12. Erfolgskriterien
+
+### Quantitative Ziele
+
+- 100% der Quartalsplanungen digital abgewickelt
+- Reduzierung der Planungszeit um 50%
+- Eliminierung von Stundenüberschreitungen durch automatische Kontrolle
+
+### Qualitative Ziele
+
+- Intuitive Bedienung ohne Schulungsaufwand
+- Bessere Übersicht über Dozierende-Kapazitäten
+- Reduzierte Planungsfehler durch Validierung
