@@ -2,7 +2,7 @@
 
 ## DHBW Vorlesungsplanung System
 
-**Version:** 1.2
+**Version:** 1.3  
 **Datum:** 2025-05-24  
 **Erstellt von:** behrends
 
@@ -72,24 +72,30 @@ Ein intuitives Web-Tool zur effizienten Planung und Verwaltung von Vorlesungen a
 ### 4.2 Studiengang-Verwaltung
 
 - Stammdaten der ~10 DHBW-Studiengänge
+- Studienverlaufsplan-Templates pro Studiengang
 - Zuordnung von Dozierenden zu Studiengängen
-- Hierarchische Kurs-Struktur pro Studiengang
 
-### 4.3 Kurs-Verwaltung
+### 4.3 Kurs-Verwaltung (Kohorten)
 
-- Kurse mit Multiple-Choice Vorlesungen
-- Quartalsweise Planung (Q1-Q4)
-- Vorlesungsdetails: Titel, Stundenzahl, Dozent\*in
-- Automatische Stundenberechnung
+- Kurse als konkrete Studierendengruppen pro Studiengang
+- Kohortenbasiert (z.B. "BWL Kurs 2024", "Informatik Kurs 2023")
+- Automatische Semester-Zuordnung basierend auf Startjahr
 
-### 4.4 Planungsübersicht
+### 4.4 Vorlesungsplanung
+
+- **Templates:** Fester Studienverlaufsplan pro Studiengang
+- **Konkrete Planung:** Zuweisung von Dozierenden zu spezifischen Vorlesungen
+- **Quartalsweise Planung:** Q1-Q4 für verschiedene Kurse und Semester
+- **Automatische Stundenberechnung:** Summe pro Dozent\*in über alle Quartale
+
+### 4.5 Planungsübersicht
 
 - **Dashboard:** Übersicht aller Studiengänge und Planungsstatus
-- **Quartalsansicht:** Detailplanung pro Quartal
+- **Quartalsansicht:** Detailplanung pro Quartal mit Kurs-/Semester-Übersicht
 - **Dozentenübersicht:** Aktuelle Stundenverteilung und Kapazitäten
 - **Konflikterkennung:** Automatische Warnung bei Überschreitungen
 
-### 4.5 Benutzer-Management
+### 4.6 Benutzer-Management
 
 - **Rollen:** Admin, User
 - **Berechtigungen:** Zuordnung zu Studiengängen
@@ -115,8 +121,9 @@ interface ApplicationData {
   lecturers: Lecturer[];
   users: User[];
   studyPrograms: StudyProgram[];
+  lectureTemplates: LectureTemplate[];
   courses: Course[];
-  lectures: Lecture[];
+  lecturePlannings: LecturePlanning[];
 }
 
 // Service-Abstraktion für spätere Backend-Migration
@@ -165,23 +172,35 @@ interface StudyProgram {
   updatedAt: string;
 }
 
-interface Course {
+// Template: Was wird generell in welchem Semester gelehrt?
+interface LectureTemplate {
   id: string;
-  studyProgramId: string;
-  name: string;
-  semester: number;
+  studyProgramId: string; // Gehört zu welchem Studiengang
+  semester: number; // Semester 1-6
+  title: string; // "Marketing Grundlagen"
+  hours: number; // 20h
   createdAt: string;
   updatedAt: string;
 }
 
-interface Lecture {
+// Kurs = Konkrete Kohorte (z.B. "BWL Kurs 2024")
+interface Course {
   id: string;
-  courseId: string;
-  title: string;
-  hours: number;
+  studyProgramId: string; // Gehört zu welchem Studiengang
+  name: string; // "BWL Kurs 2024"
+  startYear: number; // 2024 (Startjahr der Kohorte)
+  createdAt: string;
+  updatedAt: string;
+}
+
+// Konkrete Planung: Welcher Dozent macht was für welchen Kurs?
+interface LecturePlanning {
+  id: string;
+  lectureTemplateId: string; // Referenz zur Vorlesungsvorlage
+  courseId: string; // Für welchen Kurs
+  year: number; // 2024
   quarter: 'Q1' | 'Q2' | 'Q3' | 'Q4';
-  year: number;
-  lecturerId?: string;
+  lecturerId?: string; // Welcher Dozent (optional = noch nicht geplant)
   createdAt: string;
   updatedAt: string;
 }
@@ -222,6 +241,8 @@ interface Lecture {
 
 - **Validierung:** Pflichtfelder, Datentyp-Kontrolle
 - **Konsistenz:** Referenzielle Integrität zwischen Entitäten
+- **Templates:** Studienverlaufspläne sind studiengangsabhängig
+- **Kohorten:** Automatische Semester-Berechnung basierend auf Startjahr
 
 ---
 
@@ -229,22 +250,23 @@ interface Lecture {
 
 ### Als Studiengangsmanager\*in möchte ich...
 
-- Vorlesungen für meine Studiengänge planen können
-- Sehen, welche Dozierende verfügbar sind
+- Vorlesungen für meine Kurse (Kohorten) quartalsweise planen können
+- Sehen, welche Dozierende verfügbar sind und wie viele Stunden sie bereits haben
 - Stundenkapazitäten von externen Dozierenden überwachen
-- Quartalsplanungen einfach anpassen können
+- Den Studienverlaufsplan als Basis für die Planung nutzen
 
 ### Als Studiengangsleiterin möchte ich...
 
-- Überblick über alle meine Studiengänge haben
-- Planungsstatus der verschiedenen Quartale einsehen
+- Überblick über alle meine Kurse und deren Planungsstatus haben
+- Sehen, welche Vorlesungen in welchen Quartalen für welche Semester geplant sind
 - Bei Bedarf Planungen korrigieren können
 
 ### Als Administrator\*in möchte ich...
 
 - Neue Dozierende und User anlegen können
-- Berechtigungen verwalten können
+- Studienverlaufspläne (Templates) verwalten können
 - Systemweite Übersicht über alle Planungen haben
+- Neue Kurse (Kohorten) anlegen können
 
 ---
 
@@ -263,15 +285,15 @@ interface Lecture {
 │ ┌─────────────────┐         ┌─────────────────┐     │
 │ │ BWL             │         │ Q1 2024: 85%    │     │
 │ │ 📊 Q1: ✅ Q2: ⚠️│         │ Q2 2024: 40%    │     │
-│ └─────────────────┘         │ Q3 2024: 10%    │     │
-│ ┌─────────────────┐         └─────────────────┘     │
-│ │ Informatik      │                               │
-│ │ 📊 Q1: ✅ Q2: ❌│         Externe Dozierende     │
-│ └─────────────────┘         ┌─────────────────┐     │
-│                            │ Dr. Müller:     │     │
-│ [+ Neuer Studiengang]      │ 180/240h        │     │
+│ │ Kurse: 3        │         │ Q3 2024: 10%    │     │
+│ └─────────────────┘         └─────────────────┘     │
+│ ┌─────────────────┐                               │
+│ │ Informatik      │         Externe Dozierende     │
+│ │ 📊 Q1: ✅ Q2: ❌│         ┌─────────────────┐     │
+│ │ Kurse: 2        │         │ Dr. Müller:     │     │
+│ └─────────────────┘         │ 180/240h        │     │
 │                            │ ▓▓▓▓▓▓▓░░░      │     │
-│                            └─────────────────┘     │
+│ [+ Neuer Studiengang]      └─────────────────┘     │
 └─────────────────────────────────────────────────────┘
 ```
 
@@ -281,18 +303,18 @@ interface Lecture {
 ┌─────────────────────────────────────────────────────┐
 │ Quartalsplanung Q2 2024 - BWL                      │
 ├─────────────────────────────────────────────────────┤
-│ [Q1] [Q2] [Q3] [Q4]    Filter: [Alle] [Geplant]    │
+│ [Q1] [Q2] [Q3] [Q4]    Kurs: [BWL 2024 ▼]         │
 ├─────────────────────────────────────────────────────┤
 │                                                     │
-│ Kurs: BWL Semester 3                               │
+│ BWL Kurs 2024 (Semester 1)                        │
 │ ┌───────────────────────────────────────────────────┐ │
 │ │ Vorlesung                │ Std │ Dozent*in        │ │
 │ │ Marketing Grundlagen     │ 20  │ [Dr. Schmidt ▼] │ │
-│ │ Controlling              │ 16  │ [Nicht geplant]  │ │
+│ │ Controlling Basics       │ 16  │ [Nicht geplant]  │ │
 │ │ Projektmanagement        │ 12  │ [Prof. Müller▼] │ │
 │ └───────────────────────────────────────────────────┘ │
 │                                                     │
-│ Kurs: BWL Semester 5                               │
+│ BWL Kurs 2023 (Semester 3)                        │
 │ ┌───────────────────────────────────────────────────┐ │
 │ │ Unternehmensführung      │ 24  │ [Prof. Weber ▼] │ │
 │ │ Wirtschaftsrecht         │ 18  │ [Nicht geplant]  │ │
@@ -338,9 +360,11 @@ interface Lecture {
 - ✅ Frontend-Only Architektur mit localStorage
 - ✅ Migration-Ready Service Layer für spätere Backend-Integration
 - ✅ Dozierenden-Verwaltung mit Stundenkontrolle
-- ✅ Basis-Kurs und Vorlesungsplanung
-- ✅ Quartalsansicht mit Übersichtsdashboard
-- ✅ User-Management mit Rollenkonzept
+- ✅ Studienverlaufsplan-Templates pro Studiengang
+- ✅ Kurs-Verwaltung (Kohorten) mit automatischer Semester-Berechnung
+- ✅ Quartalsplanung mit Template-basierter Vorlesungszuweisung
+- ✅ Übersichtsdashboard mit Planungsstatus
+- ✅ User-Management mit 2 Rollen (Admin/User)
 - ✅ Responsive Web-Interface
 - ✅ TypeScript-Interfaces für alle Datenstrukturen
 
@@ -352,8 +376,8 @@ interface Lecture {
 - 📋 Keycloak SSO-Integration
 - 📋 Automatische E-Mail-Benachrichtigungen
 - 📋 Mobile-optimierte Ansichten
-- 📋 Änderungsprotokoll für Nachverfolgung
 - 📋 Real-time Collaboration Features
+- 📋 Änderungsprotokoll für Nachverfolgung
 
 ### Ausgeschlossen
 
@@ -385,10 +409,11 @@ interface Lecture {
 
 ### MVP-spezifische Risiken
 
-| Risiko                                | Wahrscheinlichkeit | Impact  | Mitigation                             |
-| ------------------------------------- | ------------------ | ------- | -------------------------------------- |
-| localStorage-Daten gehen verloren     | Mittel             | Mittel  | Export-Feature einbauen, User-Training |
-| Keine Multi-User Kollaboration in MVP | Hoch               | Niedrig | Bewusste Limitation, kurze MVP-Phase   |
+| Risiko                                      | Wahrscheinlichkeit | Impact  | Mitigation                                    |
+| ------------------------------------------- | ------------------ | ------- | --------------------------------------------- |
+| localStorage-Daten gehen verloren           | Mittel             | Mittel  | Export-Feature einbauen, User-Training        |
+| Keine Multi-User Kollaboration in MVP       | Hoch               | Niedrig | Bewusste Limitation, kurze MVP-Phase          |
+| Template-System zu komplex für localStorage | Niedrig            | Mittel  | Einfache Referenzen, embedded data wo möglich |
 
 ---
 
@@ -406,16 +431,18 @@ interface Lecture {
 ```typescript
 // Service-Implementierung austauschen
 // Von localStorage...
-class LocalStorageLecturerService extends DataService<Lecturer> {
-  async getAll(): Promise<Lecturer[]> {
-    return JSON.parse(localStorage.getItem('lecturers') || '[]');
+class LocalStorageLecturePlanningService extends DataService<LecturePlanning> {
+  async getAll(): Promise<LecturePlanning[]> {
+    return JSON.parse(
+      localStorage.getItem('lecturePlannings') || '[]'
+    );
   }
 }
 
 // ...zu API Service
-class ApiLecturerService extends DataService<Lecturer> {
-  async getAll(): Promise<Lecturer[]> {
-    return fetch('/api/lecturers').then((r) => r.json());
+class ApiLecturePlanningService extends DataService<LecturePlanning> {
+  async getAll(): Promise<LecturePlanning[]> {
+    return fetch('/api/lecture-plannings').then((r) => r.json());
   }
 }
 ```
@@ -436,20 +463,60 @@ class ApiLecturerService extends DataService<Lecturer> {
 **Mix aus echten + Dummy-Daten:**
 
 - **Echte DHBW-Studiengänge:** BWL, Informatik, Maschinenbau, etc.
+- **Realistische Studienverlaufspläne:** Templates mit echten Vorlesungsnamen
 - **Dummy-Personen:** Fiktive Dozierende und User mit realistischen Titeln
-- **Realistische Vorlesungen:** Passend zu echten Studiengängen
+- **Beispiel-Kurse:** BWL Kurs 2023, BWL Kurs 2024, Informatik Kurs 2023, etc.
 
-### MVP Seed Data
+### MVP Seed Data Beispiel
 
 ```typescript
-// Fest in App integrierte Dummy-Daten für sofortigen Start
 const seedData: ApplicationData = {
-  lecturers: [...],
-  users: [...],
-  studyPrograms: [...],
-  courses: [...],
-  lectures: [...]
-}
+  studyPrograms: [
+    { id: '1', name: 'Betriebswirtschaftslehre', shortName: 'BWL' },
+    { id: '2', name: 'Informatik', shortName: 'INF' },
+  ],
+  lectureTemplates: [
+    {
+      id: '1',
+      studyProgramId: '1',
+      semester: 1,
+      title: 'Marketing Grundlagen',
+      hours: 20,
+    },
+    {
+      id: '2',
+      studyProgramId: '1',
+      semester: 1,
+      title: 'Controlling Basics',
+      hours: 16,
+    },
+  ],
+  courses: [
+    {
+      id: '1',
+      studyProgramId: '1',
+      name: 'BWL Kurs 2024',
+      startYear: 2024,
+    },
+    {
+      id: '2',
+      studyProgramId: '1',
+      name: 'BWL Kurs 2023',
+      startYear: 2023,
+    },
+  ],
+  lecturePlannings: [
+    {
+      id: '1',
+      lectureTemplateId: '1',
+      courseId: '1',
+      year: 2024,
+      quarter: 'Q2',
+      lecturerId: '1',
+    },
+  ],
+  // ... weitere Dummy-Daten
+};
 ```
 
 ---
@@ -467,9 +534,11 @@ const seedData: ApplicationData = {
 - Intuitive Bedienung ohne Schulungsaufwand
 - Bessere Übersicht über Dozierende-Kapazitäten
 - Reduzierte Planungsfehler durch Validierung
+- Klare Trennung zwischen Studienverlaufsplan und konkreter Planung
 
 ### MVP-spezifische Erfolgskriterien
 
 - Stakeholder können MVP nach 2 Wochen Entwicklung testen
 - Feedback-Zyklen unter 24h durch sofortige Deployment-Möglichkeit
 - Validierung aller Core-Workflows ohne Backend-Komplexität
+- Template-System erleichtert Planung neuer Semester/Kurse
