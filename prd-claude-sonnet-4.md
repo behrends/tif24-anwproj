@@ -2,8 +2,8 @@
 
 ## DHBW Vorlesungsplanung System
 
-**Version:** 1.3  
-**Datum:** 2025-05-24  
+**Version:** 1.3.1  
+**Datum:** 2025-05-25  
 **Erstellt von:** behrends
 
 ---
@@ -72,7 +72,7 @@ Ein intuitives Web-Tool zur effizienten Planung und Verwaltung von Vorlesungen a
 ### 4.2 Studiengang-Verwaltung
 
 - Stammdaten der ~10 DHBW-Studiengänge
-- Studienverlaufsplan-Templates pro Studiengang
+- Vorlesungen pro Studiengang und Semester
 - Zuordnung von Dozierenden zu Studiengängen
 
 ### 4.3 Kurs-Verwaltung (Kohorten)
@@ -83,7 +83,7 @@ Ein intuitives Web-Tool zur effizienten Planung und Verwaltung von Vorlesungen a
 
 ### 4.4 Vorlesungsplanung
 
-- **Templates:** Fester Studienverlaufsplan pro Studiengang
+- **Feste Vorlesungen:** Studienverlaufsplan pro Studiengang definiert Vorlesungen
 - **Konkrete Planung:** Zuweisung von Dozierenden zu spezifischen Vorlesungen
 - **Quartalsweise Planung:** Q1-Q4 für verschiedene Kurse und Semester
 - **Automatische Stundenberechnung:** Summe pro Dozent\*in über alle Quartale
@@ -121,9 +121,9 @@ interface ApplicationData {
   lecturers: Lecturer[];
   users: User[];
   studyPrograms: StudyProgram[];
-  lectureTemplates: LectureTemplate[];
+  lectures: Lecture[];
   courses: Course[];
-  lecturePlannings: LecturePlanning[];
+  assignments: Assignment[];
 }
 
 // Service-Abstraktion für spätere Backend-Migration
@@ -172,8 +172,8 @@ interface StudyProgram {
   updatedAt: string;
 }
 
-// Template: Was wird generell in welchem Semester gelehrt?
-interface LectureTemplate {
+// Feste Vorlesungen pro Studiengang
+interface Lecture {
   id: string;
   studyProgramId: string; // Gehört zu welchem Studiengang
   semester: number; // Semester 1-6
@@ -193,10 +193,10 @@ interface Course {
   updatedAt: string;
 }
 
-// Konkrete Planung: Welcher Dozent macht was für welchen Kurs?
-interface LecturePlanning {
+// Zuordnung: Welcher Dozent macht welche Vorlesung für welchen Kurs?
+interface Assignment {
   id: string;
-  lectureTemplateId: string; // Referenz zur Vorlesungsvorlage
+  lectureId: string; // Referenz zur Vorlesung
   courseId: string; // Für welchen Kurs
   year: number; // 2024
   quarter: 'Q1' | 'Q2' | 'Q3' | 'Q4';
@@ -241,7 +241,7 @@ interface LecturePlanning {
 
 - **Validierung:** Pflichtfelder, Datentyp-Kontrolle
 - **Konsistenz:** Referenzielle Integrität zwischen Entitäten
-- **Templates:** Studienverlaufspläne sind studiengangsabhängig
+- **Vorlesungen:** Feste Vorlesungen sind studiengangsabhängig
 - **Kohorten:** Automatische Semester-Berechnung basierend auf Startjahr
 
 ---
@@ -253,7 +253,7 @@ interface LecturePlanning {
 - Vorlesungen für meine Kurse (Kohorten) quartalsweise planen können
 - Sehen, welche Dozierende verfügbar sind und wie viele Stunden sie bereits haben
 - Stundenkapazitäten von externen Dozierenden überwachen
-- Den Studienverlaufsplan als Basis für die Planung nutzen
+- Die festen Vorlesungen des Studiengangs als Basis für die Planung nutzen
 
 ### Als Studiengangsleiterin möchte ich...
 
@@ -264,7 +264,7 @@ interface LecturePlanning {
 ### Als Administrator\*in möchte ich...
 
 - Neue Dozierende und User anlegen können
-- Studienverlaufspläne (Templates) verwalten können
+- Vorlesungen pro Studiengang verwalten können
 - Systemweite Übersicht über alle Planungen haben
 - Neue Kurse (Kohorten) anlegen können
 
@@ -360,9 +360,9 @@ interface LecturePlanning {
 - ✅ Frontend-Only Architektur mit localStorage
 - ✅ Migration-Ready Service Layer für spätere Backend-Integration
 - ✅ Dozierenden-Verwaltung mit Stundenkontrolle
-- ✅ Studienverlaufsplan-Templates pro Studiengang
+- ✅ Feste Vorlesungen pro Studiengang
 - ✅ Kurs-Verwaltung (Kohorten) mit automatischer Semester-Berechnung
-- ✅ Quartalsplanung mit Template-basierter Vorlesungszuweisung
+- ✅ Quartalsplanung mit vorlesungsbasierter Dozent-Zuordnung
 - ✅ Übersichtsdashboard mit Planungsstatus
 - ✅ User-Management mit 2 Rollen (Admin/User)
 - ✅ Responsive Web-Interface
@@ -409,11 +409,11 @@ interface LecturePlanning {
 
 ### MVP-spezifische Risiken
 
-| Risiko                                      | Wahrscheinlichkeit | Impact  | Mitigation                                    |
-| ------------------------------------------- | ------------------ | ------- | --------------------------------------------- |
-| localStorage-Daten gehen verloren           | Mittel             | Mittel  | Export-Feature einbauen, User-Training        |
-| Keine Multi-User Kollaboration in MVP       | Hoch               | Niedrig | Bewusste Limitation, kurze MVP-Phase          |
-| Template-System zu komplex für localStorage | Niedrig            | Mittel  | Einfache Referenzen, embedded data wo möglich |
+| Risiko                                           | Wahrscheinlichkeit | Impact  | Mitigation                                    |
+| ------------------------------------------------ | ------------------ | ------- | --------------------------------------------- |
+| localStorage-Daten gehen verloren                | Mittel             | Mittel  | Export-Feature einbauen, User-Training        |
+| Keine Multi-User Kollaboration in MVP            | Hoch               | Niedrig | Bewusste Limitation, kurze MVP-Phase          |
+| Vorlesungs-Zuordnung zu komplex für localStorage | Niedrig            | Mittel  | Einfache Referenzen, embedded data wo möglich |
 
 ---
 
@@ -431,18 +431,16 @@ interface LecturePlanning {
 ```typescript
 // Service-Implementierung austauschen
 // Von localStorage...
-class LocalStorageLecturePlanningService extends DataService<LecturePlanning> {
-  async getAll(): Promise<LecturePlanning[]> {
-    return JSON.parse(
-      localStorage.getItem('lecturePlannings') || '[]'
-    );
+class LocalStorageAssignmentService extends DataService<Assignment> {
+  async getAll(): Promise<Assignment[]> {
+    return JSON.parse(localStorage.getItem('assignments') || '[]');
   }
 }
 
 // ...zu API Service
-class ApiLecturePlanningService extends DataService<LecturePlanning> {
-  async getAll(): Promise<LecturePlanning[]> {
-    return fetch('/api/lecture-plannings').then((r) => r.json());
+class ApiAssignmentService extends DataService<Assignment> {
+  async getAll(): Promise<Assignment[]> {
+    return fetch('/api/assignments').then((r) => r.json());
   }
 }
 ```
@@ -463,7 +461,7 @@ class ApiLecturePlanningService extends DataService<LecturePlanning> {
 **Mix aus echten + Dummy-Daten:**
 
 - **Echte DHBW-Studiengänge:** BWL, Informatik, Maschinenbau, etc.
-- **Realistische Studienverlaufspläne:** Templates mit echten Vorlesungsnamen
+- **Realistische Vorlesungen:** Feste Vorlesungen mit echten Namen pro Studiengang
 - **Dummy-Personen:** Fiktive Dozierende und User mit realistischen Titeln
 - **Beispiel-Kurse:** BWL Kurs 2023, BWL Kurs 2024, Informatik Kurs 2023, etc.
 
@@ -475,7 +473,7 @@ const seedData: ApplicationData = {
     { id: '1', name: 'Betriebswirtschaftslehre', shortName: 'BWL' },
     { id: '2', name: 'Informatik', shortName: 'INF' },
   ],
-  lectureTemplates: [
+  lectures: [
     {
       id: '1',
       studyProgramId: '1',
@@ -505,10 +503,10 @@ const seedData: ApplicationData = {
       startYear: 2023,
     },
   ],
-  lecturePlannings: [
+  assignments: [
     {
       id: '1',
-      lectureTemplateId: '1',
+      lectureId: '1',
       courseId: '1',
       year: 2024,
       quarter: 'Q2',
@@ -534,11 +532,11 @@ const seedData: ApplicationData = {
 - Intuitive Bedienung ohne Schulungsaufwand
 - Bessere Übersicht über Dozierende-Kapazitäten
 - Reduzierte Planungsfehler durch Validierung
-- Klare Trennung zwischen Studienverlaufsplan und konkreter Planung
+- Klare Trennung zwischen festen Vorlesungen und konkreter Planung
 
 ### MVP-spezifische Erfolgskriterien
 
 - Stakeholder können MVP nach 2 Wochen Entwicklung testen
 - Feedback-Zyklen unter 24h durch sofortige Deployment-Möglichkeit
 - Validierung aller Core-Workflows ohne Backend-Komplexität
-- Template-System erleichtert Planung neuer Semester/Kurse
+- Einfache Dozent-Vorlesung-Zuordnung erleichtert Planung neuer Semester/Kurse
