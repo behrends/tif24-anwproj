@@ -277,7 +277,7 @@ interface Assignment {
 
 ---
 
-#### Accessibility-Checks
+#### Accessibility-Checks (ggf. optional bei internen Apps)
 
 - Tastaturfokus: `outline:2px solid var(--color-primary)`
 - Sichtbarer Skip-Link vor `<header>`
