@@ -2,7 +2,7 @@
 
 ## DHBW Vorlesungsplanung System
 
-**Version:** 1.4
+**Version:** 1.5
 **Datum:** 2025-05-26  
 **Erstellt von:** behrends
 
@@ -282,6 +282,15 @@ interface Assignment {
 - Tastaturfokus: `outline:2px solid var(--color-primary)`
 - Sichtbarer Skip-Link vor `<header>`
 - **Akzeptanzkriterium:** Lighthouse Accessibility ≥ 90 / 100
+
+### 5.7 Testing (Essentials)
+
+| Ebene                   | Was wird abgedeckt?                                                     | Ziel                                                 |
+| ----------------------- | ----------------------------------------------------------------------- | ---------------------------------------------------- |
+| **Unit**                | Rechen- & Validierungslogik (240 h-Limit, Semesterzuordnung)            | Fehler früh abfangen                                 |
+| **E2E**                 | Kern-Workflows im Browser – Dozierende-CRUD, Quartals­planung speichern | Sicherstellen, dass Nutzer\*innen ans Ziel kommen    |
+| **Accessibility-Audit** | Automatisierter WCAG-AA-Check                                           | Gesetzliche Vorgaben einhalten                       |
+| **Smoke-Test**          | App startet, Dashboard lädt ohne Fehler                                 | Schnell prüfen, dass nichts Grundlegendes kaputt ist |
 
 ---
 
