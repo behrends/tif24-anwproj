@@ -2,8 +2,8 @@
 
 ## DHBW Vorlesungsplanung System
 
-**Version:** 1.3.1  
-**Datum:** 2025-05-25  
+**Version:** 1.4
+**Datum:** 2025-05-26  
 **Erstellt von:** behrends
 
 ---
@@ -220,6 +220,68 @@ interface Assignment {
 - **Später:** On-premises mit Traefik + Container
 - **Backup:** MVP keine Backups nötig → später file-basierte SQLite-Sicherung
 - **Performance:** Optimiert für 15 concurrent users
+
+### 5.6 Style Guide (Corporate Design)
+
+#### Farben (Brand Palette)
+
+| Token                 | Hex         | Verwendung                    |
+| --------------------- | ----------- | ----------------------------- |
+| **--color-primary**   | **#E2001A** | Aktive Elemente, CTAs, Fokus  |
+| --color-neutral-light | #F5F5F5     | Hintergrundflächen, Sektionen |
+| --color-neutral-dark  | #1D1D1B     | Text, Icons                   |
+
+> **Kontrast:** #E2001A ↔ #FFFFFF ≈ 4.6 : 1 → WCAG AA
+
+---
+
+#### Typografie
+
+- **Font:** “Source Sans Pro”, Arial, sans-serif
+- **Größen (px):** 32 / 24 / 20 / 16 / 14 / 12
+- **Zeilenhöhe:** 1.4 – 1.6
+- **Gewichte:** 700 (Headlines) / 400 (Body)
+
+---
+
+#### Layout-Raster
+
+- 12-Column Grid, max-width 1280 px, 24 px Gutter
+- Breakpoints: 1280 / 992 / 768 / 576 px
+- Content-Max-Width: 1120 px
+
+---
+
+#### UI-Basiskomponenten
+
+| Komponente             | Stil                                                     |
+| ---------------------- | -------------------------------------------------------- |
+| **Button (primary)**   | Hintergrund `--color-primary`, Radius 4 px, Shadow lvl 1 |
+| **Button (secondary)** | Transparent, 1 px Outline `--color-primary`              |
+| **Card**               | Weiß, Radius 4 px, subtile Shadow                        |
+| **Off-Canvas-Nav**     | 100 % Höhe, Logo links, Close rechts                     |
+
+---
+
+#### Token-Snippet (CSS)
+
+```css
+:root {
+  --color-primary: #e2001a;
+  --color-neutral-light: #f5f5f5;
+  --color-neutral-dark: #1d1d1b;
+
+  --font-base: 'Source Sans Pro', Arial, sans-serif;
+}
+```
+
+---
+
+#### Accessibility-Checks
+
+- Tastaturfokus: `outline:2px solid var(--color-primary)`
+- Sichtbarer Skip-Link vor `<header>`
+- **Akzeptanzkriterium:** Lighthouse Accessibility ≥ 90 / 100
 
 ---
 
