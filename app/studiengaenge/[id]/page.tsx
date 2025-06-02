@@ -858,14 +858,13 @@ const studiengaengeData: Studiengang[] = [
   },
 ];
 
-export default function StudiengangDetail({
+export default async function StudiengangDetail({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
-  const studiengang = studiengaengeData.find(
-    (s) => s.id === params.id
-  );
+  const { id } = await params;
+  const studiengang = studiengaengeData.find((s) => s.id === id);
 
   if (!studiengang) {
     notFound();
