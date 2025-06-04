@@ -33,9 +33,27 @@ const Navbar = () => {
             </Link>
           </Button>
           <Button variant="ghost" size="sm" asChild>
-            <Link href="/test" className="flex items-center gap-1">
+            <Link href="/dozierende" className="flex items-center gap-1">
               <TestTube className="h-4 w-4" />
-              Test
+              Dozierende
+            </Link>
+          </Button>
+          <Button variant="ghost" size="sm" asChild>
+            <Link href="/vorlesungen" className="flex items-center gap-1">
+              <BookOpen className="h-4 w-4" />
+              Vorlesungen
+            </Link>
+          </Button>
+          <Button variant="ghost" size="sm" asChild>
+            <Link href="/kurse" className="flex items-center gap-1">
+              <BookOpen className="h-4 w-4" />
+              Kurse
+            </Link>
+          </Button>
+          <Button variant="ghost" size="sm" asChild>
+            <Link href="/planung" className="flex items-center gap-1">
+              <BookOpen className="h-4 w-4" />
+              Planung
             </Link>
           </Button>
           <Button variant="ghost" size="sm" asChild>
@@ -78,11 +96,38 @@ const Navbar = () => {
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
                 <Link
-                  href="/test"
+                  href="/dozierende"
                   className="flex items-center gap-2 w-full"
                 >
                   <TestTube className="h-4 w-4" />
-                  Test
+                  Dozierende
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link
+                  href="/vorlesungen"
+                  className="flex items-center gap-2 w-full"
+                >
+                  <BookOpen className="h-4 w-4" />
+                  Vorlesungen
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link
+                  href="/kurse"
+                  className="flex items-center gap-2 w-full"
+                >
+                  <BookOpen className="h-4 w-4" />
+                  Kurse
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link
+                  href="/planung"
+                  className="flex items-center gap-2 w-full"
+                >
+                  <BookOpen className="h-4 w-4" />
+                  Planung
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
