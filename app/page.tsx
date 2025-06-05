@@ -5,7 +5,7 @@ export default function HomePage() {
       <p className="text-xl font-extrabold text-blue-500 mt-4">
         Welcome to the home page!!!
       </p>
-      <p>Achtung: Beta-Version</p>
+      <p>Achtung: dies ist eine Beta-Version</p>
     </div>
   );
 }
