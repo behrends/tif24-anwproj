@@ -7,11 +7,12 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import {
-  Home,
   Settings,
-  TestTube,
   Menu,
   BookOpen,
+  LayoutDashboard,
+  Users,
+  Calendar,
 } from 'lucide-react';
 
 const Navbar = () => {
@@ -19,23 +20,20 @@ const Navbar = () => {
     <nav className="border-b bg-background py-2">
       <div className="container mx-auto flex justify-between items-center px-4">
         <div className="flex items-center">
-          <Link href="/" className="font-semibold text-lg">
-            MyApp
+          <Link href="/dashboard" className="font-semibold text-lg">
+            DHBW Vorlesungsplanung
           </Link>
         </div>
 
         {/* Desktop Navigation */}
         <div className="hidden md:flex space-x-1">
           <Button variant="ghost" size="sm" asChild>
-            <Link href="/" className="flex items-center gap-1">
-              <Home className="h-4 w-4" />
-              Home
-            </Link>
-          </Button>
-          <Button variant="ghost" size="sm" asChild>
-            <Link href="/test" className="flex items-center gap-1">
-              <TestTube className="h-4 w-4" />
-              Test
+            <Link
+              href="/dashboard"
+              className="flex items-center gap-1"
+            >
+              <LayoutDashboard className="h-4 w-4" />
+              📊 Dashboard
             </Link>
           </Button>
           <Button variant="ghost" size="sm" asChild>
@@ -44,7 +42,25 @@ const Navbar = () => {
               className="flex items-center gap-1"
             >
               <BookOpen className="h-4 w-4" />
-              Studiengänge
+              📚 Studiengänge
+            </Link>
+          </Button>
+          <Button variant="ghost" size="sm" asChild>
+            <Link
+              href="/planning"
+              className="flex items-center gap-1"
+            >
+              <Calendar className="h-4 w-4" />
+              📅 Quartale
+            </Link>
+          </Button>
+          <Button variant="ghost" size="sm" asChild>
+            <Link
+              href="/lecturers"
+              className="flex items-center gap-1"
+            >
+              <Users className="h-4 w-4" />
+              👥 Dozierende
             </Link>
           </Button>
           <Button variant="ghost" size="sm" asChild>
@@ -53,7 +69,7 @@ const Navbar = () => {
               className="flex items-center gap-1"
             >
               <Settings className="h-4 w-4" />
-              Einstellungen
+              ⚙️ Admin
             </Link>
           </Button>
         </div>
@@ -69,20 +85,11 @@ const Navbar = () => {
             <DropdownMenuContent align="end">
               <DropdownMenuItem asChild>
                 <Link
-                  href="/"
+                  href="/dashboard"
                   className="flex items-center gap-2 w-full"
                 >
-                  <Home className="h-4 w-4" />
-                  Home
-                </Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem asChild>
-                <Link
-                  href="/test"
-                  className="flex items-center gap-2 w-full"
-                >
-                  <TestTube className="h-4 w-4" />
-                  Test
+                  <LayoutDashboard className="h-4 w-4" />
+                  📊 Dashboard
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
@@ -91,7 +98,25 @@ const Navbar = () => {
                   className="flex items-center gap-2 w-full"
                 >
                   <BookOpen className="h-4 w-4" />
-                  Studiengänge
+                  📚 Studiengänge
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link
+                  href="/planning"
+                  className="flex items-center gap-2 w-full"
+                >
+                  <Calendar className="h-4 w-4" />
+                  📅 Quartale
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link
+                  href="/lecturers"
+                  className="flex items-center gap-2 w-full"
+                >
+                  <Users className="h-4 w-4" />
+                  👥 Dozierende
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
@@ -100,7 +125,7 @@ const Navbar = () => {
                   className="flex items-center gap-2 w-full"
                 >
                   <Settings className="h-4 w-4" />
-                  Einstellungen
+                  ⚙️ Admin
                 </Link>
               </DropdownMenuItem>
             </DropdownMenuContent>
