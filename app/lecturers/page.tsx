@@ -1,5 +1,6 @@
 "use client";
 import { useState } from 'react';
+import Link from 'next/link';
 import {
   Card,
   CardContent,
@@ -9,63 +10,8 @@ import {
 import { Button } from '@/components/ui/button';
 import { ProgressBar, BlockProgressBar } from '@/components/ui/progress';
 import type { Quarter } from '@/lib/types';
+import { lecturers, type LecturerOverview } from './data';
 
-interface LecturerOverview {
-  id: string;
-  name: string;
-  title?: string;
-  email: string;
-  phone: string;
-  type: 'internal' | 'external';
-  yearlyHours: number;
-  yearlyLimit?: number;
-  expertise: string[];
-  quarters: Record<Quarter, number>;
-  warning?: string;
-  status?: 'ok' | 'warning';
-}
-
-const lecturers: LecturerOverview[] = [
-  {
-    id: '1',
-    name: 'Anna Schmidt',
-    title: 'Prof. Dr.',
-    email: 'schmidt@dhbw.de',
-    phone: '+49 721 123-456',
-    type: 'internal',
-    yearlyHours: 85,
-    expertise: ['Marketing', 'BWL Grundlagen'],
-    quarters: { Q1: 25, Q2: 40, Q3: 20, Q4: 0 },
-    status: 'ok',
-  },
-  {
-    id: '2',
-    name: 'Hans Müller',
-    title: 'Dr.',
-    email: 'mueller@extern.de',
-    phone: '+49 711 987-654',
-    type: 'external',
-    yearlyHours: 215,
-    yearlyLimit: 240,
-    expertise: ['Informatik', 'Programmierung'],
-    quarters: { Q1: 80, Q2: 75, Q3: 60, Q4: 0 },
-    warning: 'Nur noch 25h Kapazität verfügbar!',
-    status: 'warning',
-  },
-  {
-    id: '3',
-    name: 'Sarah Weber',
-    title: 'M.',
-    email: 'weber@beratung.de',
-    phone: '+49 621 456-789',
-    type: 'external',
-    yearlyHours: 160,
-    yearlyLimit: 240,
-    expertise: ['Projektmanagement', 'Consulting'],
-    quarters: { Q1: 40, Q2: 60, Q3: 60, Q4: 0 },
-    status: 'ok',
-  },
-];
 
 export default function LecturersPage() {
   const [filter, setFilter] = useState<'all' | 'internal' | 'external'>('all');
@@ -84,7 +30,9 @@ export default function LecturersPage() {
     <div className="container mx-auto p-6 space-y-6">
       <div className="flex justify-between items-center">
         <h1 className="text-3xl font-bold">👥 Dozierende</h1>
-        <Button size="sm">➕ Hinzufügen</Button>
+        <Button size="sm" asChild>
+          <Link href="/lecturers/new">➕ Hinzufügen</Link>
+        </Button>
       </div>
 
       {/* Filter & Search */}
@@ -182,14 +130,14 @@ export default function LecturersPage() {
                   </div>
                 )}
                 <div className="pt-2 flex flex-wrap gap-2">
-                  <Button variant="outline" size="sm">
-                    ✏️ Bearbeiten
+                  <Button variant="outline" size="sm" asChild>
+                    <Link href={`/lecturers/${lec.id}/edit`}>✏️ Bearbeiten</Link>
                   </Button>
-                  <Button variant="outline" size="sm">
-                    📊 Details
+                  <Button variant="outline" size="sm" asChild>
+                    <Link href={`/lecturers/${lec.id}`}>📊 Details</Link>
                   </Button>
-                  <Button variant="outline" size="sm">
-                    📅 Planung anzeigen
+                  <Button variant="outline" size="sm" asChild>
+                    <Link href="/planning">📅 Planung anzeigen</Link>
                   </Button>
                 </div>
               </CardContent>
