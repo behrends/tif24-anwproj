@@ -209,5 +209,5 @@ export default function LecturersPage() {
         </Card>
       </div>
     </div>
-  );
+  )
 }
