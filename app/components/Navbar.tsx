@@ -33,7 +33,7 @@ const Navbar = () => {
               className="flex items-center gap-1"
             >
               <LayoutDashboard className="h-4 w-4" />
-              📊 Dashboard
+              Dashboard
             </Link>
           </Button>
           <Button variant="ghost" size="sm" asChild>
@@ -42,7 +42,7 @@ const Navbar = () => {
               className="flex items-center gap-1"
             >
               <BookOpen className="h-4 w-4" />
-              📚 Studiengänge
+              Studiengänge
             </Link>
           </Button>
           <Button variant="ghost" size="sm" asChild>
@@ -51,7 +51,7 @@ const Navbar = () => {
               className="flex items-center gap-1"
             >
               <Calendar className="h-4 w-4" />
-              📅 Quartale
+              Quartale
             </Link>
           </Button>
           <Button variant="ghost" size="sm" asChild>
@@ -60,7 +60,7 @@ const Navbar = () => {
               className="flex items-center gap-1"
             >
               <Users className="h-4 w-4" />
-              👥 Dozierende
+              Dozierende
             </Link>
           </Button>
           <Button variant="ghost" size="sm" asChild>
@@ -69,7 +69,7 @@ const Navbar = () => {
               className="flex items-center gap-1"
             >
               <Settings className="h-4 w-4" />
-              ⚙️ Admin
+              Admin
             </Link>
           </Button>
         </div>
@@ -89,7 +89,7 @@ const Navbar = () => {
                   className="flex items-center gap-2 w-full"
                 >
                   <LayoutDashboard className="h-4 w-4" />
-                  📊 Dashboard
+                  Dashboard
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
@@ -98,7 +98,7 @@ const Navbar = () => {
                   className="flex items-center gap-2 w-full"
                 >
                   <BookOpen className="h-4 w-4" />
-                  📚 Studiengänge
+                  Studiengänge
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
@@ -107,7 +107,7 @@ const Navbar = () => {
                   className="flex items-center gap-2 w-full"
                 >
                   <Calendar className="h-4 w-4" />
-                  📅 Quartale
+                  Quartale
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
@@ -116,7 +116,7 @@ const Navbar = () => {
                   className="flex items-center gap-2 w-full"
                 >
                   <Users className="h-4 w-4" />
-                  👥 Dozierende
+                  Dozierende
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
@@ -125,7 +125,7 @@ const Navbar = () => {
                   className="flex items-center gap-2 w-full"
                 >
                   <Settings className="h-4 w-4" />
-                  ⚙️ Admin
+                  Admin
                 </Link>
               </DropdownMenuItem>
             </DropdownMenuContent>
